@@ -223,8 +223,6 @@ double calculatePolish(char inputStr[])
                 printf('ERROR');
                 exit(0);
             }
-                
-                else
                 stack[sp - 2] = stack[sp - 2] / stack[sp - 1];
                 sp--;
                 break;
