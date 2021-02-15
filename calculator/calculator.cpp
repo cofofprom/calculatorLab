@@ -203,22 +203,28 @@ double calculatePolish(char inputStr[])
         char number[128] = {0};
         switch (c)
         {
-            case ' ':
-            case '\n':
-                break;
-            case '+':
-                stack[sp - 2] = stack[sp - 2] + stack[sp - 1];
-                sp--;
-                break;
-            case '-':
-                stack[sp - 2] = stack[sp - 2] - stack[sp - 1];
-                sp--;
-                break;
-            case '*':
-                stack[sp - 2] = stack[sp - 1] * stack[sp - 2];
-                sp--;
-                break;
-            case '/':
+        case ' ':
+        case '\n':
+            break;
+        case '+':
+            stack[sp - 2] = stack[sp - 2] + stack[sp - 1];
+            sp--;
+            break;
+        case '-':
+            stack[sp - 2] = stack[sp - 2] - stack[sp - 1];
+            sp--;
+            break;
+        case '*':
+            stack[sp - 2] = stack[sp - 1] * stack[sp - 2];
+            sp--;
+            break;
+        case '/':
+            if (stack[sp - 1] == 0) {
+                printf('ERROR');
+                exit(0);
+            }
+                
+                else
                 stack[sp - 2] = stack[sp - 2] / stack[sp - 1];
                 sp--;
                 break;
