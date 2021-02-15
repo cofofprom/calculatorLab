@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <math.h>
 
 #define bool int
 #define true 1
@@ -50,6 +51,12 @@ bool isLetter(char curChar)
     else return false;
 }
 
+bool isNumber(char curChar)
+{
+    if (curChar >= '0' && curChar <= '9') return true;
+    else return false;
+}
+
 int countVariables(char *expression)
 {
     int j, cnt = 0;
@@ -85,7 +92,7 @@ char *makePostfixForm(char *inputStr, char *output)
     for (int i = 0; i < strlen(inputStr); i++)
     {
         char cur = inputStr[i];
-        if (cur >= '0' && cur <= '9')
+        if (isNumber(cur) || (cur == '.' && isNumber(inputStr[i-1])))
         {
             if (flag) outputStr[StringPointer] = cur, StringPointer++;
             else
@@ -185,14 +192,14 @@ char *makePostfixForm(char *inputStr, char *output)
     return output;
 }
 
-int calculatePolish(char inputStr[])
+double calculatePolish(char inputStr[])
 {
-    int *stack = (int *) malloc(SIZE);
+    double *stack = (double *) malloc(SIZE);
     int sp = 0;
     for (int i = 0; i < strlen(inputStr); i++)
     {
         char c = inputStr[i];
-        int x;
+        double x;
         char number[128] = {0};
         switch (c)
         {
@@ -215,23 +222,27 @@ int calculatePolish(char inputStr[])
                 stack[sp - 2] = stack[sp - 2] / stack[sp - 1];
                 sp--;
                 break;
+            case '^':
+                stack[sp - 2] = pow(stack[sp - 2], stack[sp - 1]);
+                sp--;
+                break;
             default:
-                for (int j = i; inputStr[j] >= '0' && inputStr[j] <= '9'; j++)
+                for (int j = i; isNumber(inputStr[j]) || (inputStr[j] == '.' && isNumber(inputStr[j-1])); j++)
                 {
                     number[j - i] = inputStr[j];
                 }
                 i += strlen(number);
-                x = atoi(number);
+                x = atof(number, 0);
                 stack[sp] = x;
                 sp++;
         }
     }
-    int result = stack[sp - 1];
+    double result = stack[sp - 1];
     free(stack);
     return result;
 }
 
-int calculateExpression(char *expr)
+double calculateExpression(char *expr)
 {
     char result[SIZE] = {0};
     makePostfixForm(expr, result);
@@ -302,7 +313,7 @@ int main()
     {
         strcpy(Expression, replaceWord(Expression, VariableData[i].Name, VariableData[i].Value));
     }
-    int Result = calculateExpression(Expression);
-    printf("%d", Result);
+    double Result = calculateExpression(Expression);
+    printf("%lf", Result);
     return 0;
 }
