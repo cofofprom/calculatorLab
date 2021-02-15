@@ -8,7 +8,13 @@
 #define true 1
 #define false 0
 #define SIZE 1024
+#define STRING_SIZE 100
 #define NumberOfOperators 5
+
+typedef struct InputVariable
+{
+    char Name[STRING_SIZE], Value[STRING_SIZE];
+} Variable;
 
 int getOperatorPriority(const char c)
 {
@@ -40,7 +46,7 @@ bool isOperator(char curChar)
 
 bool isLetter(char curChar)
 {
-    if ((curChar>='a' && curChar<='z') || (curChar>='A' && curChar<='Z')) return true;
+    if ((curChar >= 'a' && curChar <= 'z') || (curChar >= 'A' && curChar <= 'Z')) return true;
     else return false;
 }
 
@@ -48,7 +54,7 @@ int countVariables(char *expression)
 {
     int j, cnt = 0;
     bool f = false;
-    for (int i=0; i<strlen(expression); )
+    for (int i = 0; i < strlen(expression);)
     {
         char cur = expression[i];
         if (isLetter(cur))
@@ -63,7 +69,7 @@ int countVariables(char *expression)
                 if (!isLetter(expression[j])) break;
             }
             if (!f) cnt++;
-            i+=(j-i);
+            i += (j - i);
         }
         else i++;
     }
@@ -73,8 +79,8 @@ int countVariables(char *expression)
 char *makePostfixForm(char *inputStr, char *output)
 {
     bool flag = false;
-    char* outputStr = (char*)calloc(SIZE, SIZE);
-    char* operatorStack = (char*)calloc(SIZE, SIZE);
+    char *outputStr = (char *) calloc(SIZE, SIZE);
+    char *operatorStack = (char *) calloc(SIZE, SIZE);
     int StackPointer = 0, StringPointer = 0;
     for (int i = 0; i < strlen(inputStr); i++)
     {
@@ -96,7 +102,7 @@ char *makePostfixForm(char *inputStr, char *output)
             flag = false;
             while (StackPointer)
             {
-                char temp = operatorStack[StackPointer-1];
+                char temp = operatorStack[StackPointer - 1];
                 if (isOperator(temp) && (getOperatorPriority(cur) <= getOperatorPriority(temp)))
                 {
                     outputStr[StringPointer] = ' ';
@@ -122,7 +128,7 @@ char *makePostfixForm(char *inputStr, char *output)
             bool f = false;
             while (StackPointer)
             {
-                char temp = operatorStack[StackPointer-1];
+                char temp = operatorStack[StackPointer - 1];
                 if (temp == '(')
                 {
                     f = true;
@@ -144,9 +150,9 @@ char *makePostfixForm(char *inputStr, char *output)
             bool f = false;
             if (isLetter(cur))
             {
-                for (int j=i; j<strlen(inputStr); j++)
+                for (int j = i; j < strlen(inputStr); j++)
                 {
-                    if (inputStr[j]=='(')
+                    if (inputStr[j] == '(')
                     {
                         f = true;
                         break;
@@ -169,7 +175,7 @@ char *makePostfixForm(char *inputStr, char *output)
     {
         outputStr[StringPointer] = ' ';
         StringPointer++;
-        outputStr[StringPointer] = operatorStack[StackPointer-1];
+        outputStr[StringPointer] = operatorStack[StackPointer - 1];
         StringPointer++;
         StackPointer--;
     }
@@ -181,7 +187,7 @@ char *makePostfixForm(char *inputStr, char *output)
 
 int calculatePolish(char inputStr[])
 {
-    int *stack = (int*)malloc(SIZE);
+    int *stack = (int *) malloc(SIZE);
     int sp = 0;
     for (int i = 0; i < strlen(inputStr); i++)
     {
@@ -225,25 +231,27 @@ int calculatePolish(char inputStr[])
     return result;
 }
 
-int calculateExpression(char* expr)
+int calculateExpression(char *expr)
 {
-    char result[SIZE] = { 0 };
+    char result[SIZE] = {0};
     makePostfixForm(expr, result);
     return calculatePolish(result);
 }
 
-char* replaceWord(const char* s, const char* oldW,
-                  const char* newW)
+char *replaceWord(const char *s, const char *oldW,
+                  const char *newW)
 {
-    char* result;
+    char *result;
     int i, cnt = 0;
     int newWlen = strlen(newW);
     int oldWlen = strlen(oldW);
 
     // Counting the number of times old word
     // occur in the string
-    for (i = 0; s[i] != '\0'; i++) {
-        if (strstr(&s[i], oldW) == &s[i]) {
+    for (i = 0; s[i] != '\0'; i++)
+    {
+        if (strstr(&s[i], oldW) == &s[i])
+        {
             cnt++;
 
             // Jumping to index after the old word.
@@ -252,12 +260,14 @@ char* replaceWord(const char* s, const char* oldW,
     }
 
     // Making new string of enough length
-    result = (char*)malloc(i + cnt * (newWlen - oldWlen) + 1);
+    result = (char *) malloc(i + cnt * (newWlen - oldWlen) + 1);
 
     i = 0;
-    while (*s) {
+    while (*s)
+    {
         // compare the substring with the result
-        if (strstr(s, oldW) == s) {
+        if (strstr(s, oldW) == s)
+        {
             strcpy(&result[i], newW);
             i += newWlen;
             s += oldWlen;
@@ -269,6 +279,7 @@ char* replaceWord(const char* s, const char* oldW,
     result[i] = '\0';
     return result;
 }
+
 void check()
 {
     //Неплохо бы написать набор тестов в отдельном текстовом файле и пихнуть в эту функцию проверку
@@ -277,11 +288,21 @@ void check()
 
 int main()
 {
-    char expression[SIZE];
-    gets(expression);
-//    strcpy(expression, replaceWord(expression, "a", "2"));
-//    strcpy(expression, replaceWord(expression, "b", "4"));
-    int result = calculateExpression(expression);
-    printf("%s\n%d variables in total", expression, countVariables(expression));
+    char Expression[SIZE];
+    fgets(Expression, sizeof(Expression), stdin);
+    int NumberOfVariables = countVariables(Expression);
+    Variable VariableData[STRING_SIZE] = {0};
+    for (int i = 0; i < NumberOfVariables; i++)
+    {
+        char str[STRING_SIZE] = {0};
+        fgets(str, sizeof(str), stdin);
+        sscanf(str, "%s = %s", VariableData[i].Name, VariableData[i].Value);
+    }
+    for (int i=0; i<NumberOfVariables; i++)
+    {
+        strcpy(Expression, replaceWord(Expression, VariableData[i].Name, VariableData[i].Value));
+    }
+    int Result = calculateExpression(Expression);
+    printf("%d", Result);
     return 0;
 }
