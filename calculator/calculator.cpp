@@ -38,6 +38,38 @@ bool isOperator(char curChar)
     return false;
 }
 
+bool isLetter(char curChar)
+{
+    if ((curChar>='a' && curChar<='z') || (curChar>='A' && curChar<='Z')) return true;
+    else return false;
+}
+
+int countVariables(char *expression)
+{
+    int j, cnt = 0;
+    bool f = false;
+    for (int i=0; i<strlen(expression); )
+    {
+        char cur = expression[i];
+        if (isLetter(cur))
+        {
+            for (j = i; j < strlen(expression); j++)
+            {
+                if (expression[j] == '(')
+                {
+                    f = true;
+                    break;
+                }
+                if (!isLetter(expression[j])) break;
+            }
+            if (!f) cnt++;
+            i+=(j-i);
+        }
+        else i++;
+    }
+    return cnt;
+}
+
 char *makePostfixForm(char *inputStr, char *output)
 {
     bool flag = false;
@@ -87,13 +119,13 @@ char *makePostfixForm(char *inputStr, char *output)
         else if (cur == ')')
         {
             flag = false;
-            bool flag = false;
+            bool f = false;
             while (StackPointer)
             {
                 char temp = operatorStack[StackPointer-1];
                 if (temp == '(')
                 {
-                    flag = true;
+                    f = true;
                     break;
                 }
                 else
@@ -106,6 +138,31 @@ char *makePostfixForm(char *inputStr, char *output)
                 }
             }
             StackPointer--;
+        }
+        else
+        {
+            bool f = false;
+            if (isLetter(cur))
+            {
+                for (int j=i; j<strlen(inputStr); j++)
+                {
+                    if (inputStr[j]=='(')
+                    {
+                        f = true;
+                        break;
+                    }
+
+                }
+                if (!f)
+                {
+                    outputStr[StringPointer] = ' ';
+                    StringPointer++;
+                    outputStr[StringPointer] = cur;
+                    StringPointer++;
+                    flag = true;
+                }
+                //Тут прописать случай если символы являются не названием переменной, а функцией
+            }
         }
     }
     while (StackPointer)
@@ -176,30 +233,30 @@ int calculateExpression(char* expr)
 }
 
 char* replaceWord(const char* s, const char* oldW,
-    const char* newW)
+                  const char* newW)
 {
     char* result;
     int i, cnt = 0;
     int newWlen = strlen(newW);
     int oldWlen = strlen(oldW);
 
-    // Counting the number of times old word 
-    // occur in the string 
+    // Counting the number of times old word
+    // occur in the string
     for (i = 0; s[i] != '\0'; i++) {
         if (strstr(&s[i], oldW) == &s[i]) {
             cnt++;
 
-            // Jumping to index after the old word. 
+            // Jumping to index after the old word.
             i += oldWlen - 1;
         }
     }
 
-    // Making new string of enough length 
+    // Making new string of enough length
     result = (char*)malloc(i + cnt * (newWlen - oldWlen) + 1);
 
     i = 0;
     while (*s) {
-        // compare the substring with the result 
+        // compare the substring with the result
         if (strstr(s, oldW) == s) {
             strcpy(&result[i], newW);
             i += newWlen;
@@ -212,16 +269,19 @@ char* replaceWord(const char* s, const char* oldW,
     result[i] = '\0';
     return result;
 }
+void check()
+{
+    //Неплохо бы написать набор тестов в отдельном текстовом файле и пихнуть в эту функцию проверку
+    return;
+}
 
 int main()
 {
     char expression[SIZE];
-    gets_s(expression, SIZE);
-    //expression[strlen(expression) - 1] = 0;
-    strcpy(expression, replaceWord(expression, "a", "2"));
-    strcpy(expression, replaceWord(expression, "b", "4"));
+    gets(expression);
+//    strcpy(expression, replaceWord(expression, "a", "2"));
+//    strcpy(expression, replaceWord(expression, "b", "4"));
     int result = calculateExpression(expression);
-    printf("%s = %d", expression, result);
-
+    printf("%s\n%d variables in total", expression, countVariables(expression));
     return 0;
 }
