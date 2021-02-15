@@ -301,6 +301,8 @@ int main()
 {
     char Expression[SIZE];
     fgets(Expression, sizeof(Expression), stdin);
+    strcpy(Expression, replaceWord(Expression, "pi", "3.1415926"));
+    strcpy(Expression, replaceWord(Expression, "e", "2.71828"));
     int NumberOfVariables = countVariables(Expression);
     Variable VariableData[STRING_SIZE] = {0};
     for (int i = 0; i < NumberOfVariables; i++)
