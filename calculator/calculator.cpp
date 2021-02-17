@@ -259,9 +259,12 @@ double calculatePolish(char inputStr[])
                 sp--;
                 break;
             default:
-                for (int j = i; isNumber(inputStr[j]) || (inputStr[j] == '.' && isNumber(inputStr[j - 1])); j++)
+                for (int j = i; isNumber(inputStr[j]) || (inputStr[j] == '.' && isNumber(inputStr[j - 1]) || (inputStr[j] == '!' && isNumber(inputStr[j + 1]))); j++)
                 {
-                    number[j - i] = inputStr[j];
+                    if(inputStr[j] == '!')
+                        number[j - i] = '-';
+                    else
+                        number[j - i] = inputStr[j];
                 }
                 i += strlen(number);
                 x = atof(number);
