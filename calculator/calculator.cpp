@@ -36,6 +36,48 @@ int getOperatorPriority(const char c)
     return 0;
 }
 
+char* replaceWord(const char* s, const char* oldW,
+    const char* newW)
+{
+    char* result;
+    int i, cnt = 0;
+    int newWlen = strlen(newW);
+    int oldWlen = strlen(oldW);
+
+    // Counting the number of times old word
+    // occur in the string
+    for (i = 0; s[i] != '\0'; i++)
+    {
+        if (strstr(&s[i], oldW) == &s[i])
+        {
+            cnt++;
+
+            // Jumping to index after the old word.
+            i += oldWlen - 1;
+        }
+    }
+
+    // Making new string of enough length
+    result = (char*)malloc(i + cnt * (newWlen - oldWlen) + 1);
+
+    i = 0;
+    while (*s)
+    {
+        // compare the substring with the result
+        if (strstr(s, oldW) == s)
+        {
+            strcpy(&result[i], newW);
+            i += newWlen;
+            s += oldWlen;
+        }
+        else
+            result[i++] = *s++;
+    }
+
+    result[i] = '\0';
+    return result;
+}
+
 bool isOperator(char curChar)
 {
     char Operators[NumberOfOperators] = {'+', '-', '*', '/', '^'};
@@ -178,10 +220,17 @@ char *makePostfixForm(char *inputStr, char *output)
                 }
             }
             StackPointer--;
+            if (isLetter(inputStr[i + 1]))
+            {
+                outputStr[StringPointer] = ' ';
+                StringPointer++;
+                outputStr[StringPointer] = inputStr[i + 1];
+                StringPointer++;
+            }
         }
         else
         {
-            bool f = false;
+            /*bool f = false;
             if (isLetter(cur))
             {
                 for (int j = i; j < strlen(inputStr); j++)
@@ -191,7 +240,6 @@ char *makePostfixForm(char *inputStr, char *output)
                         f = true;
                         break;
                     }
-
                 }
                 if (!f)
                 {
@@ -202,7 +250,7 @@ char *makePostfixForm(char *inputStr, char *output)
                     flag = true;
                 }
                 //Тут прописать случай если символы являются не названием переменной, а функцией
-            }
+            }*/
         }
     }
     while (StackPointer)
@@ -258,6 +306,9 @@ double calculatePolish(char inputStr[])
                 stack[sp - 2] = pow(stack[sp - 2], stack[sp - 1]);
                 sp--;
                 break;
+            case 's':
+                stack[sp - 1] = sin(stack[sp - 1]);
+                break;
             default:
                 for (int j = i; isNumber(inputStr[j]) || (inputStr[j] == '.' && isNumber(inputStr[j - 1]) || (inputStr[j] == '!' && isNumber(inputStr[j + 1]))); j++)
                 {
@@ -293,57 +344,54 @@ char *deleteSpaces(char *inputStr, char *output)
     return output;
 }
 
+char* replaceFuncToBrackets(char inputStr[], char name[], char toBeginning[], char toEnd[])
+{
+    char result[SIZE] = { 0 };
+    char stack[SIZE] = { 0 };
+    int sp = 0;
+    bool found = false;
+    strcpy(result, replaceWord(inputStr, name, "b"));
+    for (int i = 0; i < strlen(inputStr); i++)
+    {
+        if(found)
+        {
+            if (result[i] == '(') stack[sp++] = 1;
+            else if (result[i] == ')')
+            {
+                stack[sp--] = 0;
+                if (sp == 0) result[i] = 'o';
+                break;
+            }
+        }
+        else
+        {
+            if (result[i] == 'b' && result[i + 1] == '(')
+            {
+                found = true;
+                stack[sp++] = 1;
+                i++;
+            }
+        }
+    }
+    
+    strcpy(result, replaceWord(result, "b(", toBeginning));
+    strcpy(result, replaceWord(result, "o", toEnd));
+    printf("%s\n", result);
+    return result;
+}
+
 double calculateExpression(char *expr)
 {
     char result[SIZE] = {0}, temp1[SIZE] = {0}, temp2[SIZE] = {0};
     strcpy(temp1, deleteSpaces(expr, temp1));
     strcpy(temp2, findUnaryMinus(temp1, temp2));
+    strcpy(temp2, replaceFuncToBrackets(temp2, "sin", "(", ")s"));
+    strcpy(temp2, replaceFuncToBrackets(temp2, "sin", "(", ")s"));
     makePostfixForm(temp2, result);
-    printf("%s\n", result);
+    printf("DEBUG: %s\n", result);
     return calculatePolish(result);
 }
 
-char *replaceWord(const char *s, const char *oldW,
-                  const char *newW)
-{
-    char *result;
-    int i, cnt = 0;
-    int newWlen = strlen(newW);
-    int oldWlen = strlen(oldW);
-
-    // Counting the number of times old word
-    // occur in the string
-    for (i = 0; s[i] != '\0'; i++)
-    {
-        if (strstr(&s[i], oldW) == &s[i])
-        {
-            cnt++;
-
-            // Jumping to index after the old word.
-            i += oldWlen - 1;
-        }
-    }
-
-    // Making new string of enough length
-    result = (char *) malloc(i + cnt * (newWlen - oldWlen) + 1);
-
-    i = 0;
-    while (*s)
-    {
-        // compare the substring with the result
-        if (strstr(s, oldW) == s)
-        {
-            strcpy(&result[i], newW);
-            i += newWlen;
-            s += oldWlen;
-        }
-        else
-            result[i++] = *s++;
-    }
-
-    result[i] = '\0';
-    return result;
-}
 
 void check()
 {
