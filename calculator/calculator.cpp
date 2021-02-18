@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include <complex.h>
 
 #define bool int
 #define true 1
@@ -360,7 +361,6 @@ char* replaceFuncToBrackets(char inputStr[], char name[], char toBeginning[], ch
             {
                 stack[sp--] = 0;
                 if (sp == 0) result[i] = 'o';
-                break;
             }
         }
         else
@@ -422,6 +422,7 @@ int main()
         }
     }
     double Result = calculateExpression(Expression);
+    
     printf("%lf", Result);
     return 0;
 }
