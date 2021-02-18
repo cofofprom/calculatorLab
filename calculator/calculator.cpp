@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include <complex.h>
 
 #define bool int
 #define true 1
@@ -22,6 +23,7 @@ int getOperatorPriority(const char c)
     switch (c)
     {
         case '^':
+        case '!':
             return 4;
         case '*':
         case '/':
@@ -33,6 +35,48 @@ int getOperatorPriority(const char c)
             return 1;
     }
     return 0;
+}
+
+char* replaceWord(const char* s, const char* oldW,
+    const char* newW)
+{
+    char* result;
+    int i, cnt = 0;
+    int newWlen = strlen(newW);
+    int oldWlen = strlen(oldW);
+
+    // Counting the number of times old word
+    // occur in the string
+    for (i = 0; s[i] != '\0'; i++)
+    {
+        if (strstr(&s[i], oldW) == &s[i])
+        {
+            cnt++;
+
+            // Jumping to index after the old word.
+            i += oldWlen - 1;
+        }
+    }
+
+    // Making new string of enough length
+    result = (char*)malloc(i + cnt * (newWlen - oldWlen) + 1);
+
+    i = 0;
+    while (*s)
+    {
+        // compare the substring with the result
+        if (strstr(s, oldW) == s)
+        {
+            strcpy(&result[i], newW);
+            i += newWlen;
+            s += oldWlen;
+        }
+        else
+            result[i++] = *s++;
+    }
+
+    result[i] = '\0';
+    return result;
 }
 
 bool isOperator(char curChar)
@@ -59,8 +103,9 @@ bool isNumber(char curChar)
 
 int countVariables(char *expression)
 {
-    int j, cnt = 0;
+    int j, cnt = 0, ptv = 0, ptn = 0;
     bool f = false;
+    char variables[STRING_SIZE][STRING_SIZE] = {0}, name[STRING_SIZE] = {0};
     for (int i = 0; i < strlen(expression);)
     {
         char cur = expression[i];
@@ -74,13 +119,38 @@ int countVariables(char *expression)
                     break;
                 }
                 if (!isLetter(expression[j])) break;
+                name[ptn] = expression[j];
             }
-            if (!f) cnt++;
+            if (!f)
+            {
+                bool flag = false;
+                for (int j = 0; j < ptv; j++)
+                {
+                    if (strcmp(variables[j], name) == 0) flag = true;
+                }
+                if (!flag)
+                {
+                    cnt++;
+                    strcpy(variables[ptv], name);
+                    ptv++;
+                }
+                ptn = 0;
+            }
             i += (j - i);
         }
         else i++;
     }
     return cnt;
+}
+
+char *findUnaryMinus(char *inputStr, char *output)
+{
+    for (int i = 0; i < strlen(inputStr); i++)
+    {
+        if (inputStr[i] == '-' && (i == 0 || inputStr[i - 1] == '(')) inputStr[i] = '!';
+    }
+    strcpy(output, inputStr);
+    return output;
 }
 
 char *makePostfixForm(char *inputStr, char *output)
@@ -92,7 +162,7 @@ char *makePostfixForm(char *inputStr, char *output)
     for (int i = 0; i < strlen(inputStr); i++)
     {
         char cur = inputStr[i];
-        if (isNumber(cur) || (cur == '.' && isNumber(inputStr[i-1])))
+        if (isNumber(cur) || (cur == '.' && isNumber(inputStr[i - 1])) || cur == '!')
         {
             if (flag) outputStr[StringPointer] = cur, StringPointer++;
             else
@@ -151,10 +221,17 @@ char *makePostfixForm(char *inputStr, char *output)
                 }
             }
             StackPointer--;
+            if (isLetter(inputStr[i + 1]))
+            {
+                outputStr[StringPointer] = ' ';
+                StringPointer++;
+                outputStr[StringPointer] = inputStr[i + 1];
+                StringPointer++;
+            }
         }
         else
         {
-            bool f = false;
+            /*bool f = false;
             if (isLetter(cur))
             {
                 for (int j = i; j < strlen(inputStr); j++)
@@ -164,7 +241,6 @@ char *makePostfixForm(char *inputStr, char *output)
                         f = true;
                         break;
                     }
-
                 }
                 if (!f)
                 {
@@ -175,7 +251,7 @@ char *makePostfixForm(char *inputStr, char *output)
                     flag = true;
                 }
                 //Тут прописать случай если символы являются не названием переменной, а функцией
-            }
+            }*/
         }
     }
     while (StackPointer)
@@ -203,28 +279,27 @@ double calculatePolish(char inputStr[])
         char number[128] = {0};
         switch (c)
         {
-        case ' ':
-        case '\n':
-            break;
-        case '+':
-            stack[sp - 2] = stack[sp - 2] + stack[sp - 1];
-            sp--;
-            break;
-        case '-':
-            stack[sp - 2] = stack[sp - 2] - stack[sp - 1];
-            sp--;
-            break;
-        case '*':
-            stack[sp - 2] = stack[sp - 1] * stack[sp - 2];
-            sp--;
-            break;
-        case '/':
-            if (stack[sp - 1] == 0) {
-                printf('ERROR');
-                exit(0);
-            }
-                
-                else
+            case ' ':
+            case '\n':
+                break;
+            case '+':
+                stack[sp - 2] = stack[sp - 2] + stack[sp - 1];
+                sp--;
+                break;
+            case '-':
+                stack[sp - 2] = stack[sp - 2] - stack[sp - 1];
+                sp--;
+                break;
+            case '*':
+                stack[sp - 2] = stack[sp - 1] * stack[sp - 2];
+                sp--;
+                break;
+            case '/':
+                if (stack[sp - 1] == 0)
+                {
+                    printf("ERROR");
+                    exit(0);
+                }
                 stack[sp - 2] = stack[sp - 2] / stack[sp - 1];
                 sp--;
                 break;
@@ -232,13 +307,19 @@ double calculatePolish(char inputStr[])
                 stack[sp - 2] = pow(stack[sp - 2], stack[sp - 1]);
                 sp--;
                 break;
+            case 's':
+                stack[sp - 1] = sin(stack[sp - 1]);
+                break;
             default:
-                for (int j = i; isNumber(inputStr[j]) || (inputStr[j] == '.' && isNumber(inputStr[j-1])); j++)
+                for (int j = i; isNumber(inputStr[j]) || (inputStr[j] == '.' && isNumber(inputStr[j - 1]) || (inputStr[j] == '!' && isNumber(inputStr[j + 1]))); j++)
                 {
-                    number[j - i] = inputStr[j];
+                    if(inputStr[j] == '!')
+                        number[j - i] = '-';
+                    else
+                        number[j - i] = inputStr[j];
                 }
                 i += strlen(number);
-                x = atof(number, 0);
+                x = atof(number);
                 stack[sp] = x;
                 sp++;
         }
@@ -248,54 +329,69 @@ double calculatePolish(char inputStr[])
     return result;
 }
 
+char *deleteSpaces(char *inputStr, char *output)
+{
+    char withoutSpaces[SIZE] = {0};
+    int pt = 0;
+    for (int i = 0; i < strlen(inputStr); i++)
+    {
+        if (inputStr[i] != ' ')
+        {
+            withoutSpaces[pt] = inputStr[i];
+            pt++;
+        }
+    }
+    strcpy(output, withoutSpaces);
+    return output;
+}
+
+char* replaceFuncToBrackets(char inputStr[], char name[], char toBeginning[], char toEnd[])
+{
+    char result[SIZE] = { 0 };
+    char stack[SIZE] = { 0 };
+    int sp = 0;
+    bool found = false;
+    strcpy(result, replaceWord(inputStr, name, "b"));
+    for (int i = 0; i < strlen(inputStr); i++)
+    {
+        if(found)
+        {
+            if (result[i] == '(') stack[sp++] = 1;
+            else if (result[i] == ')')
+            {
+                stack[sp--] = 0;
+                if (sp == 0) result[i] = 'o';
+            }
+        }
+        else
+        {
+            if (result[i] == 'b' && result[i + 1] == '(')
+            {
+                found = true;
+                stack[sp++] = 1;
+                i++;
+            }
+        }
+    }
+    
+    strcpy(result, replaceWord(result, "b(", toBeginning));
+    strcpy(result, replaceWord(result, "o", toEnd));
+    printf("%s\n", result);
+    return result;
+}
+
 double calculateExpression(char *expr)
 {
-    char result[SIZE] = {0};
-    makePostfixForm(expr, result);
+    char result[SIZE] = {0}, temp1[SIZE] = {0}, temp2[SIZE] = {0};
+    strcpy(temp1, deleteSpaces(expr, temp1));
+    strcpy(temp2, findUnaryMinus(temp1, temp2));
+    strcpy(temp2, replaceFuncToBrackets(temp2, "sin", "(", ")s"));
+    strcpy(temp2, replaceFuncToBrackets(temp2, "sin", "(", ")s"));
+    makePostfixForm(temp2, result);
+    printf("DEBUG: %s\n", result);
     return calculatePolish(result);
 }
 
-char *replaceWord(const char *s, const char *oldW,
-                  const char *newW)
-{
-    char *result;
-    int i, cnt = 0;
-    int newWlen = strlen(newW);
-    int oldWlen = strlen(oldW);
-
-    // Counting the number of times old word
-    // occur in the string
-    for (i = 0; s[i] != '\0'; i++)
-    {
-        if (strstr(&s[i], oldW) == &s[i])
-        {
-            cnt++;
-
-            // Jumping to index after the old word.
-            i += oldWlen - 1;
-        }
-    }
-
-    // Making new string of enough length
-    result = (char *) malloc(i + cnt * (newWlen - oldWlen) + 1);
-
-    i = 0;
-    while (*s)
-    {
-        // compare the substring with the result
-        if (strstr(s, oldW) == s)
-        {
-            strcpy(&result[i], newW);
-            i += newWlen;
-            s += oldWlen;
-        }
-        else
-            result[i++] = *s++;
-    }
-
-    result[i] = '\0';
-    return result;
-}
 
 void check()
 {
@@ -307,21 +403,26 @@ int main()
 {
     char Expression[SIZE];
     fgets(Expression, sizeof(Expression), stdin);
-    strcpy(Expression, replaceWord(Expression, "pi", "3.1415926"));
-    strcpy(Expression, replaceWord(Expression, "e", "2.71828"));
-    int NumberOfVariables = countVariables(Expression);
+    strcpy(Expression, replaceWord(Expression, "PI", "3.1415926"));
+    strcpy(Expression, replaceWord(Expression, "E", "2.71828"));
     Variable VariableData[STRING_SIZE] = {0};
+    int NumberOfVariables = countVariables(Expression);
     for (int i = 0; i < NumberOfVariables; i++)
     {
         char str[STRING_SIZE] = {0};
         fgets(str, sizeof(str), stdin);
         sscanf(str, "%s = %s", VariableData[i].Name, VariableData[i].Value);
     }
-    for (int i=0; i<NumberOfVariables; i++)
+    while (countVariables(Expression))
     {
-        strcpy(Expression, replaceWord(Expression, VariableData[i].Name, VariableData[i].Value));
+        int NumberOfVariables = countVariables(Expression);
+        for (int i = 0; i < NumberOfVariables; i++)
+        {
+            strcpy(Expression, replaceWord(Expression, VariableData[i].Name, VariableData[i].Value));
+        }
     }
     double Result = calculateExpression(Expression);
+    
     printf("%lf", Result);
     return 0;
 }
