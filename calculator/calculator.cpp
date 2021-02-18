@@ -317,6 +317,27 @@ double calculatePolish(char inputStr[])
             case 's':
                 stack[sp - 1] = sin(stack[sp - 1]);
                 break;
+            case 'c':
+                stack[sp - 1] = cos(stack[sp - 1]);
+                break;
+            case 'n':
+                stack[sp - 1] = log(stack[sp - 1]);
+                break;
+            case 'g':
+                stack[sp - 1] = log10(stack[sp - 1]);
+                break;
+            case 'a':
+                stack[sp - 1] = fabs(stack[sp - 1]);
+                break;
+            case 't':
+                stack[sp - 1] = tan(stack[sp - 1]);
+                break;
+            case 'q':
+                stack[sp - 1] = sqrt(stack[sp - 1]);
+                break;
+            case 'e':
+                stack[sp - 1] = exp(stack[sp - 1]);
+                break;
             default:
                 for (int j = i; isNumber(inputStr[j]) || (inputStr[j] == '.' && isNumber(inputStr[j - 1]) || (inputStr[j] == '!' && isNumber(inputStr[j + 1]))); j++)
                 {
@@ -403,6 +424,14 @@ double calculateExpression(char *expr)
     strcpy(temp1, deleteSpaces(expr, temp1));
     strcpy(temp2, findUnaryMinus(temp1, temp2));
     strcpy(temp2, replaceFuncToBrackets(temp2, "sin", "(", ")s"));
+    strcpy(temp2, replaceFuncToBrackets(temp2, "cos", "(", ")c"));
+    strcpy(temp2, replaceFuncToBrackets(temp2, "tg", "(", ")t"));
+    strcpy(temp2, replaceFuncToBrackets(temp2, "log", "(", ")l"));
+    strcpy(temp2, replaceFuncToBrackets(temp2, "ln", "(", ")n"));
+    strcpy(temp2, replaceFuncToBrackets(temp2, "lg", "(", ")g"));
+    strcpy(temp2, replaceFuncToBrackets(temp2, "sqrt", "(", ")q"));
+    strcpy(temp2, replaceFuncToBrackets(temp2, "abs", "(", ")a"));
+    strcpy(temp2, replaceFuncToBrackets(temp2, "exp", "(", ")e"));
     strcpy(temp2, replaceFuncToBrackets(temp2, "pow", "(", ")p"));
     makePostfixForm(temp2, result);
     printf("DEBUG: %s\n", result);
