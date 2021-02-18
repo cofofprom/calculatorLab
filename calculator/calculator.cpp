@@ -44,7 +44,7 @@ int getOperatorPriority(const char c)
 }
 
 char* replaceWord(const char* s, const char* oldW,
-    const char* newW)
+                  const char* newW)
 {
     char* result;
     int i, cnt = 0;
@@ -153,7 +153,7 @@ char *findUnaryMinus(char *inputStr, char *output)
 {
     for (int i = 0; i < strlen(inputStr); i++)
     {
-        if (inputStr[i] == '-' && (i == 0 || inputStr[i - 1] == '(')) inputStr[i] = '!';
+        if (inputStr[i] == '-' && (i == 0 || (i>0 && (inputStr[i - 1] == '(' || isOperator(inputStr[i-1]))))) inputStr[i] = '!';
     }
     strcpy(output, inputStr);
     return output;
@@ -237,18 +237,9 @@ char *makePostfixForm(char *inputStr, char *output)
         }
         else
         {
-            /*bool f = false;
             if (isLetter(cur))
             {
-                for (int j = i; j < strlen(inputStr); j++)
-                {
-                    if (inputStr[j] == '(')
-                    {
-                        f = true;
-                        break;
-                    }
-                }
-                if (!f)
+                if (i==0 || (i>0 && inputStr[i-1]!=')'))
                 {
                     outputStr[StringPointer] = ' ';
                     StringPointer++;
@@ -257,7 +248,7 @@ char *makePostfixForm(char *inputStr, char *output)
                     flag = true;
                 }
                 //Тут прописать случай если символы являются не названием переменной, а функцией
-            }*/
+            }
         }
     }
     while (StackPointer)
@@ -373,27 +364,6 @@ char *deleteSpaces(char *inputStr, char *output)
     return output;
 }
 
-char* replaceFuncToBrackets(char inputStr[], char name[], char toBeginning[], char toEnd[])
-{
-    char* result = (char*)calloc(SIZE, SIZE);
-    char stack[SIZE] = { 0 };
-    int sp = 0;
-    bool found = false;
-    strcpy(result, replaceWord(inputStr, name, REPLACERO));
-    for (int i = 0; i < strlen(result); i++)
-    {
-        if (result[i] == REPLACERO[0] && result[i + 1] == '(')
-        {
-            i = replaceBrackets(&result, i + 1);
-        }
-    }
-    
-    strcpy(result, replaceWord(result, MASKREPLACE, toBeginning));
-    strcpy(result, replaceWord(result, REPLACERC, toEnd));
-    //printf("%s\n", result);
-    return result;
-}
-
 int replaceBrackets(char* inputStr[], int posfrom)
 {
     char* arr = *inputStr;
@@ -402,7 +372,7 @@ int replaceBrackets(char* inputStr[], int posfrom)
     //strcpy(arr, *inputStr);
     for (int i = posfrom; i < strlen(arr); i++)
     {
-        
+
         if (arr[i] == REPLACERO[0] && arr[i + 1] == '(')
         {
             //stack[sp++] = 1;
@@ -421,6 +391,28 @@ int replaceBrackets(char* inputStr[], int posfrom)
         }
     }
 }
+
+char* replaceFuncToBrackets(char inputStr[], char name[], char toBeginning[], char toEnd[])
+{
+    char* result = (char*)calloc(SIZE, SIZE);
+    char stack[SIZE] = { 0 };
+    int sp = 0;
+    bool found = false;
+    strcpy(result, replaceWord(inputStr, name, REPLACERO));
+    for (int i = 0; i < strlen(result); i++)
+    {
+        if (result[i] == REPLACERO[0] && result[i + 1] == '(')
+        {
+            i = replaceBrackets(&result, i + 1);
+        }
+    }
+
+    strcpy(result, replaceWord(result, MASKREPLACE, toBeginning));
+    strcpy(result, replaceWord(result, REPLACERC, toEnd));
+    //printf("%s\n", result);
+    return result;
+}
+
 
 double calculateExpression(char *expr)
 {
@@ -473,7 +465,7 @@ int main()
         }
     }
     double Result = calculateExpression(Expression);
-    
+
     printf("%lf", Result);
     return 0;
 }
