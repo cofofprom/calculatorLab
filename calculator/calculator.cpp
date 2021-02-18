@@ -14,7 +14,10 @@
 #define STRING_SIZE 100
 #define NumberOfOperators 5
 
-//СТРУКТУРЫ
+const char REPLACERO[2] = { 1, 0 };
+const char REPLACERC[2] = { 2, 0 };
+const char MASKREPLACE[3] = { 1, '(', 0 };
+
 typedef struct InputVariable
 {
     char Name[STRING_SIZE], Value[STRING_SIZE];
@@ -306,6 +309,7 @@ double calculatePolish(char inputStr[])
                 stack[sp - 2] = stack[sp - 2] / stack[sp - 1];
                 sp--;
                 break;
+            case 'p':
             case '^':
                 stack[sp - 2] = pow(stack[sp - 2], stack[sp - 1]);
                 sp--;
@@ -350,37 +354,47 @@ char *deleteSpaces(char *inputStr, char *output)
 
 char* replaceFuncToBrackets(char inputStr[], char name[], char toBeginning[], char toEnd[])
 {
-    char result[SIZE] = { 0 };
+    char* result = (char*)calloc(SIZE, SIZE);
     char stack[SIZE] = { 0 };
     int sp = 0;
     bool found = false;
-    strcpy(result, replaceWord(inputStr, name, "b"));
-    for (int i = 0; i < strlen(inputStr); i++)
+    strcpy(result, replaceWord(inputStr, name, REPLACERO));
+    for (int i = 0; i < strlen(result); i++)
     {
-        if(found)
+        if (result[i] == REPLACERO[0] && result[i + 1] == '(')
         {
-            if (result[i] == '(') stack[sp++] = 1;
-            else if (result[i] == ')')
-            {
-                stack[sp--] = 0;
-                if (sp == 0) result[i] = 'o';
-            }
-        }
-        else
-        {
-            if (result[i] == 'b' && result[i + 1] == '(')
-            {
-                found = true;
-                stack[sp++] = 1;
-                i++;
-            }
+            i = replaceBrackets(&result, i + 1);
         }
     }
     
-    strcpy(result, replaceWord(result, "b(", toBeginning));
-    strcpy(result, replaceWord(result, "o", toEnd));
+    strcpy(result, replaceWord(result, MASKREPLACE, toBeginning));
+    strcpy(result, replaceWord(result, REPLACERC, toEnd));
     printf("%s\n", result);
     return result;
+}
+
+int replaceBrackets(char* inputStr[], int posfrom)
+{
+    char* arr = *inputStr;
+    //strcpy(arr, *inputStr);
+    for (int i = posfrom; i < strlen(arr); i++)
+    {
+        char stack[SIZE] = { 0 };
+        int sp = 0;
+        if (arr[i] == REPLACERO[0] && arr[i + 1] == '(')
+        {
+            //stack[sp++] = 1;
+            i = replaceBrackets(&arr, i+1);
+        }
+        if (arr[i] == '(') stack[sp++] = 1;
+        else if (arr[i] == ')')
+        {
+            stack[sp--] = 0;
+            if (sp + 1 == 0) arr[i] = REPLACERC[0];
+            strcpy(*inputStr, arr);
+            return i;
+        }
+    }
 }
 
 double calculateExpression(char *expr)
@@ -389,7 +403,7 @@ double calculateExpression(char *expr)
     strcpy(temp1, deleteSpaces(expr, temp1));
     strcpy(temp2, findUnaryMinus(temp1, temp2));
     strcpy(temp2, replaceFuncToBrackets(temp2, "sin", "(", ")s"));
-    strcpy(temp2, replaceFuncToBrackets(temp2, "sin", "(", ")s"));
+    strcpy(temp2, replaceFuncToBrackets(temp2, "pow", "(", ")p"));
     makePostfixForm(temp2, result);
     printf("DEBUG: %s\n", result);
     return calculatePolish(result);
