@@ -1,4 +1,5 @@
-﻿#define _CRT_SECURE_NO_WARNINGS
+﻿//ОПРЕДЕЛЕНИЯ И БИБЛИОТЕКИ 
+#define _CRT_SECURE_NO_WARNINGS
 
 #include <stdio.h>
 #include <string.h>
@@ -13,11 +14,13 @@
 #define STRING_SIZE 100
 #define NumberOfOperators 5
 
+//СТРУКТУРЫ
 typedef struct InputVariable
 {
     char Name[STRING_SIZE], Value[STRING_SIZE];
 } Variable;
 
+//ФУНКЦИИ
 int getOperatorPriority(const char c)
 {
     switch (c)
@@ -399,6 +402,7 @@ void check()
     return;
 }
 
+//ГЛВНАЯ ФУНКЦИЯ
 int main()
 {
     char Expression[SIZE];
