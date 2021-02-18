@@ -1,5 +1,4 @@
-﻿//ОПРЕДЕЛЕНИЯ И БИБЛИИОТЕКИ
-#define _CRT_SECURE_NO_WARNINGS
+﻿#define _CRT_SECURE_NO_WARNINGS
 
 #include <stdio.h>
 #include <string.h>
@@ -13,13 +12,11 @@
 #define STRING_SIZE 100
 #define NumberOfOperators 5
 
-//СТРУКТУРЫ
 typedef struct InputVariable
 {
     char Name[STRING_SIZE], Value[STRING_SIZE];
 } Variable;
 
-//ФУНКЦИИ
 int getOperatorPriority(const char c)
 {
     switch (c)
@@ -223,7 +220,7 @@ double calculatePolish(char inputStr[])
             break;
         case '/':
             if (stack[sp - 1] == 0) {
-                printf("ERROR");
+                printf('ERROR');
                 exit(0);
             }
                 
@@ -306,7 +303,6 @@ void check()
     return;
 }
 
-//ГЛАВНАЯ ФУНКЦИЯ
 int main()
 {
     char Expression[SIZE];
