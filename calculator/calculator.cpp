@@ -390,18 +390,19 @@ char* replaceFuncToBrackets(char inputStr[], char name[], char toBeginning[], ch
     
     strcpy(result, replaceWord(result, MASKREPLACE, toBeginning));
     strcpy(result, replaceWord(result, REPLACERC, toEnd));
-    printf("%s\n", result);
+    //printf("%s\n", result);
     return result;
 }
 
 int replaceBrackets(char* inputStr[], int posfrom)
 {
     char* arr = *inputStr;
+    char stack[SIZE] = { 0 };
+    int sp = 0;
     //strcpy(arr, *inputStr);
     for (int i = posfrom; i < strlen(arr); i++)
     {
-        char stack[SIZE] = { 0 };
-        int sp = 0;
+        
         if (arr[i] == REPLACERO[0] && arr[i + 1] == '(')
         {
             //stack[sp++] = 1;
@@ -411,9 +412,12 @@ int replaceBrackets(char* inputStr[], int posfrom)
         else if (arr[i] == ')')
         {
             stack[sp--] = 0;
-            if (sp + 1 == 0) arr[i] = REPLACERC[0];
-            strcpy(*inputStr, arr);
-            return i;
+            if (sp == 0)
+            {
+                arr[i] = REPLACERC[0];
+                strcpy(*inputStr, arr);
+                return i;
+            }
         }
     }
 }
