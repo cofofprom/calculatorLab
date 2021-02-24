@@ -446,19 +446,53 @@ double calculateExpression(char *expr)
     char result[SIZE] = {0}, temp1[SIZE] = {0}, temp2[SIZE] = {0};
     strcpy(temp1, deleteSpaces(expr, temp1));
     strcpy(temp2, findUnaryMinus(temp1, temp2));
-    strcpy(temp2, replaceFuncToBrackets(temp2, "я", "(", ")s")); // здесь тоже а в кейсах НЕ НАДО
-    strcpy(temp2, replaceFuncToBrackets(temp2, "ю", "(", ")c"));
-    strcpy(temp2, replaceFuncToBrackets(temp2, "tg", "(", ")t"));
-    strcpy(temp2, replaceFuncToBrackets(temp2, "log", "(", ")l"));
-    strcpy(temp2, replaceFuncToBrackets(temp2, "ln", "(", ")n"));
-    strcpy(temp2, replaceFuncToBrackets(temp2, "lg", "(", ")g"));
-    strcpy(temp2, replaceFuncToBrackets(temp2, "sqrt", "(", ")q"));
-    strcpy(temp2, replaceFuncToBrackets(temp2, "abs", "(", ")a"));
-    strcpy(temp2, replaceFuncToBrackets(temp2, "exp", "(", ")e"));
-    strcpy(temp2, replaceFuncToBrackets(temp2, "pow", "(", ")p"));
+    strcpy(temp2, replaceFuncToBrackets(temp2, "с", "(", ")s")); 
+    strcpy(temp2, replaceFuncToBrackets(temp2, "к", "(", ")c"));
+    strcpy(temp2, replaceFuncToBrackets(temp2, "т", "(", ")t"));
+    strcpy(temp2, replaceFuncToBrackets(temp2, "л", "(", ")l"));
+    strcpy(temp2, replaceFuncToBrackets(temp2, "н", "(", ")n"));
+    strcpy(temp2, replaceFuncToBrackets(temp2, "г", "(", ")g"));
+    strcpy(temp2, replaceFuncToBrackets(temp2, "р", "(", ")q"));
+    strcpy(temp2, replaceFuncToBrackets(temp2, "б", "(", ")a"));
+    strcpy(temp2, replaceFuncToBrackets(temp2, "е", "(", ")e"));
+    strcpy(temp2, replaceFuncToBrackets(temp2, "п", "(", ")p"));
     makePostfixForm(temp2, result);
     printf("DEBUG: %s\n", result);
     return calculatePolish(result);
+}
+
+int readTest(char buf[][512])
+{
+    FILE* TestIn = fopen("Tests.txt", "r");
+
+    int bufc = 0;
+    char Expression[512] = { 0 };
+    while (fgets(Expression, 512, TestIn))
+    {
+        Expression[strlen(Expression) - 1] = 0;
+        strcpy(buf[bufc++], Expression);
+    }
+
+    fclose(TestIn);
+
+    return bufc;
+}
+
+int readResult(char buf[][512])
+{
+    FILE* TestIn = fopen("TestsAnswer.txt", "r");
+
+    int bufc = 0;
+    char Expression[512] = { 0 };
+    while (fgets(Expression, 512, TestIn))
+    {
+        Expression[strlen(Expression) - 1] = 0;
+        strcpy(buf[bufc++], Expression);
+    }
+
+    fclose(TestIn);
+
+    return bufc;
 }
 
 
@@ -468,17 +502,28 @@ void check()
     return;
 }
 
-//ГЛВНАЯ ФУНКЦИЯ
+//ГЛАВНАЯ ФУНКЦИЯ
 int main()
 {
+    FILE* output = fopen("Tests.txt", "r");
+    FILE* dataIn = fopen("data.txt", "w");
+  
     char Expression[SIZE];
     fgets(Expression, sizeof(Expression), stdin);
     strcpy(Expression, replaceWord(Expression, "PI", "3.1415926"));
     strcpy(Expression, replaceWord(Expression, "E", "2.71828"));
     strcpy(Expression, deleteSpaces(Expression, Expression));
     strcpy(Expression, replaceComplexPlus(Expression, 'J'));
-    strcpy(Expression, replaceWord(Expression, "sin", "я")); // для каждой функции так замени Ваня
-    strcpy(Expression, replaceWord(Expression, "cos", "ю"));
+    strcpy(Expression, replaceWord(Expression, "sin", "с")); 
+    strcpy(Expression, replaceWord(Expression, "cos", "к"));
+    strcpy(Expression, replaceWord(Expression, "tg", "т"));
+    strcpy(Expression, replaceWord(Expression, "log", "л"));
+    strcpy(Expression, replaceWord(Expression, "ln", "н"));
+    strcpy(Expression, replaceWord(Expression, "lg", "г"));
+    strcpy(Expression, replaceWord(Expression, "sqrt", "р"));
+    strcpy(Expression, replaceWord(Expression, "abs", "б"));
+    strcpy(Expression, replaceWord(Expression, "exp", "е"));
+    strcpy(Expression, replaceWord(Expression, "pow", "п"));
     Variable VariableData[STRING_SIZE] = {0};
     int NumberOfVariables = countVariables(Expression);
     for (int i = 0; i < NumberOfVariables; i++)
