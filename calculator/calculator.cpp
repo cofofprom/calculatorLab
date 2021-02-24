@@ -13,6 +13,7 @@
 #define SIZE 1024
 #define STRING_SIZE 100
 #define NumberOfOperators 5
+#define COMPLEX_PLUS '$'
 
 const char REPLACERO[2] = { 1, 0 };
 const char REPLACERC[2] = { 2, 0 };
@@ -159,6 +160,30 @@ char *findUnaryMinus(char *inputStr, char *output)
     }
     strcpy(output, inputStr);
     return output;
+}
+
+char* replaceComplexPlus(char* input, char complexI)
+{
+    char res[SIZE] = { 0 };
+    strcpy(res, input);
+    for (int i = 0; i < strlen(res); i++)
+    {
+        if (res[i] == '+')
+        {
+            int pos = i;
+            for(int j = i + 1; isNumber(res[j]) || res[j] == '.'; j++)
+            {
+                if (res[j + 1] == complexI)
+                {
+                    res[pos] = COMPLEX_PLUS;
+                    res[j + 1] = ' ';
+                    i = j + 1;
+                    break;
+                }
+            }
+        }
+    }
+    return res;
 }
 
 char *makePostfixForm(char *inputStr, char *output)
@@ -450,6 +475,8 @@ int main()
     fgets(Expression, sizeof(Expression), stdin);
     strcpy(Expression, replaceWord(Expression, "PI", "3.1415926"));
     strcpy(Expression, replaceWord(Expression, "E", "2.71828"));
+    strcpy(Expression, deleteSpaces(Expression, Expression));
+    strcpy(Expression, replaceComplexPlus(Expression, 'J'));
     strcpy(Expression, replaceWord(Expression, "sin", "я")); // для каждой функции так замени Ваня
     strcpy(Expression, replaceWord(Expression, "cos", "ю"));
     Variable VariableData[STRING_SIZE] = {0};
