@@ -110,10 +110,10 @@ bool isNumber(char curChar)
 int countVariables(char *expression)
 {
     int j, cnt = 0, ptv = 0, ptn = 0;
-    bool f = false;
     char variables[STRING_SIZE][STRING_SIZE] = {0}, name[STRING_SIZE] = {0};
     for (int i = 0; i < strlen(expression);)
     {
+        bool f = false;
         char cur = expression[i];
         if (isLetter(cur))
         {
@@ -125,8 +125,9 @@ int countVariables(char *expression)
                     break;
                 }
                 if (!isLetter(expression[j])) break;
-                name[ptn] = expression[j];
+                name[ptn++] = expression[j];
             }
+            name[ptn] = 0;
             if (!f)
             {
                 bool flag = false;
@@ -140,8 +141,9 @@ int countVariables(char *expression)
                     strcpy(variables[ptv], name);
                     ptv++;
                 }
-                ptn = 0;
+                
             }
+            ptn = 0;
             i += (j - i);
         }
         else i++;
