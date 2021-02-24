@@ -505,8 +505,6 @@ void check()
 //ГЛАВНАЯ ФУНКЦИЯ
 int main()
 {
-    FILE* output = fopen("Tests.txt", "r");
-    FILE* dataIn = fopen("data.txt", "w");
   
     char Expression[SIZE];
     fgets(Expression, sizeof(Expression), stdin);
