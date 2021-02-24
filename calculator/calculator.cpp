@@ -421,8 +421,8 @@ double calculateExpression(char *expr)
     char result[SIZE] = {0}, temp1[SIZE] = {0}, temp2[SIZE] = {0};
     strcpy(temp1, deleteSpaces(expr, temp1));
     strcpy(temp2, findUnaryMinus(temp1, temp2));
-    strcpy(temp2, replaceFuncToBrackets(temp2, "я", "(", ")я")); // здесь тоже и в кейсах так же
-    strcpy(temp2, replaceFuncToBrackets(temp2, "cos", "(", ")c"));
+    strcpy(temp2, replaceFuncToBrackets(temp2, "я", "(", ")s")); // здесь тоже а в кейсах НЕ НАДО
+    strcpy(temp2, replaceFuncToBrackets(temp2, "ю", "(", ")c"));
     strcpy(temp2, replaceFuncToBrackets(temp2, "tg", "(", ")t"));
     strcpy(temp2, replaceFuncToBrackets(temp2, "log", "(", ")l"));
     strcpy(temp2, replaceFuncToBrackets(temp2, "ln", "(", ")n"));
@@ -451,6 +451,7 @@ int main()
     strcpy(Expression, replaceWord(Expression, "PI", "3.1415926"));
     strcpy(Expression, replaceWord(Expression, "E", "2.71828"));
     strcpy(Expression, replaceWord(Expression, "sin", "я")); // для каждой функции так замени Ваня
+    strcpy(Expression, replaceWord(Expression, "cos", "ю"));
     Variable VariableData[STRING_SIZE] = {0};
     int NumberOfVariables = countVariables(Expression);
     for (int i = 0; i < NumberOfVariables; i++)
