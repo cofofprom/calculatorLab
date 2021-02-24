@@ -456,10 +456,15 @@ int main()
     {
         char str[STRING_SIZE] = {0};
         fgets(str, sizeof(str), stdin);
-        sscanf(str, "%s = %s", VariableData[i].Name, VariableData[i].Value);
+        char* rest = strchr(str, (int)'=');
+        rest[strlen(rest) - 1] = 0;
+        sscanf(str, "%s", VariableData[i].Name);
+        strcpy(VariableData[i].Value, rest);
     }
     while (countVariables(Expression))
     {
+        strcpy(Expression, replaceWord(Expression, "PI", "3.1415926"));
+        strcpy(Expression, replaceWord(Expression, "E", "2.71828"));
         int NumberOfVariables = countVariables(Expression);
         for (int i = 0; i < NumberOfVariables; i++)
         {
