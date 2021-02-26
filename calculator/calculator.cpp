@@ -47,47 +47,47 @@ int getOperatorPriority(const char c)
     return 0;
 }
 
-char *replaceWord(const char *s, const char *oldW,
-                  const char *newW)
-{
-    char *result;
-    int i, cnt = 0;
-    int newWlen = strlen(newW);
-    int oldWlen = strlen(oldW);
-
-    // Counting the number of times old word
-    // occur in the string
-    for (i = 0; s[i] != '\0'; i++)
-    {
-        if (strstr(&s[i], oldW) == &s[i])
-        {
-            cnt++;
-
-            // Jumping to index after the old word.
-            i += oldWlen - 1;
-        }
-    }
-
-    // Making new string of enough length
-    result = (char *) malloc(i + cnt * (newWlen - oldWlen) + 1);
-
-    i = 0;
-    while (*s)
-    {
-        // compare the substring with the result
-        if (strstr(s, oldW) == s)
-        {
-            strcpy(&result[i], newW);
-            i += newWlen;
-            s += oldWlen;
-        }
-        else
-            result[i++] = *s++;
-    }
-
-    result[i] = '\0';
-    return result;
-}
+//char *replaceWord(const char *s, const char *oldW,
+//                  const char *newW)
+//{
+//    char *result;
+//    int i, cnt = 0;
+//    int newWlen = strlen(newW);
+//    int oldWlen = strlen(oldW);
+//
+//    // Counting the number of times old word
+//    // occur in the string
+//    for (i = 0; s[i] != '\0'; i++)
+//    {
+//        if (strstr(&s[i], oldW) == &s[i])
+//        {
+//            cnt++;
+//
+//            // Jumping to index after the old word.
+//            i += oldWlen - 1;
+//        }
+//    }
+//
+//    // Making new string of enough length
+//    result = (char *) malloc(i + cnt * (newWlen - oldWlen) + 1);
+//
+//    i = 0;
+//    while (*s)
+//    {
+//        // compare the substring with the result
+//        if (strstr(s, oldW) == s)
+//        {
+//            strcpy(&result[i], newW);
+//            i += newWlen;
+//            s += oldWlen;
+//        }
+//        else
+//            result[i++] = *s++;
+//    }
+//
+//    result[i] = '\0';
+//    return result;
+//}
 
 bool isOperator(char curChar)
 {
@@ -128,7 +128,7 @@ int countVariables(char *expression)
                     f = true;
                     break;
                 }
-                if (!isLetter(expression[j])) break;
+                if (!isLetter(expression[j]) && !isNumber(expression[j])) break;
                 name[ptn++] = expression[j];
             }
             name[ptn] = 0;
@@ -278,13 +278,10 @@ char *makePostfixForm(char *inputStr, char *output)
             {
                 if (i == 0 || (i > 0 && inputStr[i - 1] != ')'))
                 {
-                    outputStr[StringPointer] = ' ';
-                    StringPointer++;
+                    if (!flag) outputStr[StringPointer] = ' ', flag = true, StringPointer++;;
                     outputStr[StringPointer] = cur;
                     StringPointer++;
-                    flag = true;
                 }
-                //Тут прописать случай если символы являются не названием переменной, а функцией
             }
         }
     }
@@ -405,6 +402,48 @@ char *deleteSpaces(char *inputStr, char *output)
     return output;
 }
 
+char *replaceWord(const char *s, const char *oldW,
+                  const char *newW)
+{
+    char *result;
+    int i, cnt = 0;
+    int newWlen = strlen(newW);
+    int oldWlen = strlen(oldW);
+
+    // Counting the number of times old word
+    // occur in the string
+    for (i = 0; s[i] != '\0'; i++)
+    {
+        if (strstr(&s[i], oldW) == &s[i])
+        {
+            cnt++;
+
+            // Jumping to index after the old word.
+            i += oldWlen - 1;
+        }
+    }
+
+    // Making new string of enough length
+    result = (char *) malloc(i + cnt * (newWlen - oldWlen) + 1);
+
+    i = 0;
+    while (*s)
+    {
+        // compare the substring with the result
+        if (strstr(s, oldW) == s)
+        {
+            strcpy(&result[i], newW);
+            i += newWlen;
+            s += oldWlen;
+        }
+        else
+            result[i++] = *s++;
+    }
+
+    result[i] = '\0';
+    return result;
+}
+
 int replaceBrackets(char *inputStr[], int posfrom)
 {
     char *arr = *inputStr;
@@ -476,29 +515,6 @@ double calculateExpression(char *expression)
     char result[SIZE] = {0}, temp1[SIZE] = {0}, temp2[SIZE] = {0};
     strcpy(temp1, deleteSpaces(expression, temp1));
     strcpy(temp2, findUnaryMinus(temp1, temp2));
-    strcpy(temp2, makeSuitableForm(temp2));
-    Variable VariableData[STRING_SIZE] = {0};
-    int NumberOfVariables = countVariables(expression);
-    for (int i = 0; i < NumberOfVariables; i++)
-    {
-        char str[STRING_SIZE] = {0};
-        fgets(str, sizeof(str), stdin);
-        char *rest = strchr(str, (int) '=');
-        rest[strlen(rest) - 1] = 0;
-        sscanf(str, "%s", VariableData[i].Name);
-        strcpy(VariableData[i].Value, rest);
-    }
-    while (countVariables(expression))
-    {
-        strcpy(expression, replaceWord(expression, "PI", "3.1415926"));
-        strcpy(expression, replaceWord(expression, "E", "2.71828"));
-        int NumberOfVariables = countVariables(expression);
-        for (int i = 0; i < NumberOfVariables; i++)
-        {
-            strcpy(expression, replaceWord(expression, VariableData[i].Name, VariableData[i].Value));
-        }
-    }
-    strcpy(temp2, makeSuitableForm(temp2));
     strcpy(temp2, replaceFuncToBrackets(temp2, "с", "(", ")s"));
     strcpy(temp2, replaceFuncToBrackets(temp2, "к", "(", ")c"));
     strcpy(temp2, replaceFuncToBrackets(temp2, "т", "(", ")t"));
@@ -517,6 +533,7 @@ double calculateExpression(char *expression)
 void check()
 {
     FILE *Tests, *Answers;
+    bool flag = false;
     Tests = fopen("Tests.txt", "r");
     Answers = fopen("TestAnswers.txt", "r");
     char temp[STRING_SIZE] = {0};
@@ -527,20 +544,15 @@ void check()
     {
         char result[SIZE] = {0}, temp1[SIZE] = {0}, temp2[SIZE] = {0}, expression[SIZE] = {0};;
         fgets(expression, sizeof(expression), Tests);
-        strcpy(expression, makeSuitableForm(expression));
         strcpy(temp1, deleteSpaces(expression, temp1));
         strcpy(temp2, findUnaryMinus(temp1, temp2));
-        strcpy(temp2, makeSuitableForm(temp2));
         Variable VariableData[STRING_SIZE] = {0};
         int NumberOfVariables = countVariables(expression);
         for (int i = 0; i < NumberOfVariables; i++)
         {
             char str[STRING_SIZE] = {0};
-            fgets(str, sizeof(str), Tests);
-            char *rest = strchr(str, (int) '=');
-            rest[strlen(rest) - 1] = 0;
-            sscanf(str, "%s", VariableData[i].Name);
-            strcpy(VariableData[i].Value, rest);
+            fgets(str, sizeof(str), stdin);
+            sscanf(str, "%s = %s", VariableData[i].Name, VariableData[i].Value);
         }
         while (countVariables(expression))
         {
@@ -572,15 +584,35 @@ void check()
         {
             printf("Wrong answer on test_case #%d: (%lf) instead of (%lf)\n", test_case, calculatePolish(result),
                    AnswerForCurrentTest);
+            flag = true;
         }
     }
+    if (!flag) printf("Accepted\n");
 }
 
 signed main()
 {
-
     char Expression[SIZE];
     fgets(Expression, sizeof(Expression), stdin);
+    Variable VariableData[STRING_SIZE] = {0};
+    int NumberOfVariables = countVariables(Expression);
+    for (int i = 0; i < NumberOfVariables; i++)
+    {
+        char str[STRING_SIZE] = {0};
+        fgets(str, sizeof(str), stdin);
+        sscanf(str, "%s = %s", VariableData[i].Name, VariableData[i].Value);
+    }
+    while (countVariables(Expression))
+    {
+        strcpy(Expression, replaceWord(Expression, "PI", "3.1415926"));
+        strcpy(Expression, replaceWord(Expression, "E", "2.71828"));
+        int NumberOfVariables = countVariables(Expression);
+        for (int i = 0; i < NumberOfVariables; i++)
+        {
+            strcpy(Expression, replaceWord(Expression, VariableData[i].Name, VariableData[i].Value));
+        }
+    }
+    strcpy(Expression, makeSuitableForm(Expression));
     double Result = calculateExpression(Expression);
     printf("%lf", Result);
 //    check();
