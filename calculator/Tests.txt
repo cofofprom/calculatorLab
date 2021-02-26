@@ -9,17 +9,17 @@
 -5+5 +       -3-2-1 + 10.010101
 5000000+5000000+5000000+5000000
 1000000000000-100000000000000
-(a+aa*aaa)*2    - 3
-a = 1
-aa = 2
-aaa = 3 
+(a1+a2*a3)*2    - 3
+a1 = 1
+a2 = 2
+a3 = 3
 (a*sin(a))*cos(bbb)+33
 a = 0
 bbb = 1
 tan(qq)-PI+(sin(qq))^2+pow(cos(qq), 2) - 1
 qq = 0
-sin(sin(sin(a*aaa)*a)*a)
-a = PI
-aaa = 2*PI
+sin(sin(sin(a1*a2)*a1)*a1)
+a1 = PI
+a2 = 2*PI
 PI^(E^(PI/100))-          sin(sin(a)) + 0.000000
 a = 1.0000000
