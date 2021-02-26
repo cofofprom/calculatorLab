@@ -212,6 +212,11 @@ char *makePostfixForm(char *inputStr, char *output)
                 flag = true;
             }
         }
+        else if (cur==',')
+        {
+            outputStr[StringPointer] = ' ';
+            StringPointer++;
+        }
         else if (isOperator(cur))
         {
             flag = false;
@@ -361,6 +366,10 @@ double calculatePolish(char inputStr[])
             case 'e':
                 stack[sp - 1] = exp(stack[sp - 1]);
                 break;
+            case 'l':
+                stack[sp-2] = ((double)log(stack[sp-1]))/((double)log(stack[sp-2]));
+                sp--;
+                break;
             default:
                 for (int j = i; isNumber(inputStr[j]) || (inputStr[j] == '.' && isNumber(inputStr[j - 1]) ||
                                                           (inputStr[j] == '!' && isNumber(inputStr[j + 1]))); j++)
@@ -501,44 +510,9 @@ double calculateExpression(char *expression)
     strcpy(temp2, replaceFuncToBrackets(temp2, "е", "(", ")e"));
     strcpy(temp2, replaceFuncToBrackets(temp2, "п", "(", ")p"));
     makePostfixForm(temp2, result);
-//    printf("DEBUG: %s\n", result);
+    printf("DEBUG: %s\n", result);
     return calculatePolish(result);
 }
-
-//int readTest(char buf[][512])
-//{
-//    FILE* TestIn = fopen("Tests.txt", "r");
-//
-//    int bufc = 0;
-//    char Expression[512] = { 0 };
-//    while (fgets(Expression, 512, TestIn))
-//    {
-//        Expression[strlen(Expression) - 1] = 0;
-//        strcpy(buf[bufc++], Expression);
-//    }
-//
-//    fclose(TestIn);
-//
-//    return bufc;
-//}
-//
-//int readResult(char buf[][512])
-//{
-//    FILE* TestIn = fopen("TestsAnswer.txt", "r");
-//
-//    int bufc = 0;
-//    char Expression[512] = { 0 };
-//    while (fgets(Expression, 512, TestIn))
-//    {
-//        Expression[strlen(Expression) - 1] = 0;
-//        strcpy(buf[bufc++], Expression);
-//    }
-//
-//    fclose(TestIn);
-//
-//    return bufc;
-//}
-
 
 void check()
 {
@@ -605,10 +579,10 @@ void check()
 signed main()
 {
 
-//    char Expression[SIZE];
-//    fgets(Expression, sizeof(Expression), stdin);
-//    double Result = calculateExpression(Expression);
-//    printf("%lf", Result);
-    check();
+    char Expression[SIZE];
+    fgets(Expression, sizeof(Expression), stdin);
+    double Result = calculateExpression(Expression);
+    printf("%lf", Result);
+//    check();
     return 0;
 }
