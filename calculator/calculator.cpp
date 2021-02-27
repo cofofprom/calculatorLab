@@ -653,7 +653,14 @@ signed main()
     }
     strcpy(Expression, makeSuitableForm(Expression));
     _Dcomplex Result = calculateExpression(Expression);
-    printf("%lf+%lfj", creal(Result), cimag(Result));
+    if (cimag(Result) != 0)
+    {
+        printf("%lf+%lfj", creal(Result), cimag(Result));
+    }
+    else
+    {
+        printf("%lf", creal(Result));
+    }
 //    check();
     return 0;
 }
