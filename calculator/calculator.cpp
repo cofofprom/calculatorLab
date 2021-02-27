@@ -395,6 +395,7 @@ _Dcomplex calculatePolish(char inputStr[])
                 stack[sp - 2] = divC(clog((_Dcomplex) { 10, 0 }), clog(stack[sp - 2]));
                 sp--;
                 break;
+            case 'm':
             case 'a':
                 stack[sp - 1] = (_Dcomplex){ cabs(stack[sp - 1]), 0 };
                 break;
@@ -410,6 +411,15 @@ _Dcomplex calculatePolish(char inputStr[])
             case 'l':
                 stack[sp-2] = divC(clog(stack[sp-1]),clog(stack[sp-2]));
                 sp--;
+                break;
+            case 'r':
+                stack[sp - 1] = (_Dcomplex){ creal(stack[sp - 1]), 0 };
+                break;
+            case 'i':
+                stack[sp - 1] = (_Dcomplex){ cimag(stack[sp - 1]), 0 };
+                break;
+            case 'f':
+                stack[sp - 1] = (_Dcomplex){ carg(stack[sp - 1]), 0 };
                 break;
             default:
                 for (int j = i; isNumber(inputStr[j]) || (inputStr[j] == '.' && isNumber(inputStr[j - 1]) ||
@@ -511,6 +521,10 @@ char *makeSuitableForm(char *expression)
     strcpy(expression, replaceWord(expression, "abs", "б"));
     strcpy(expression, replaceWord(expression, "exp", "е"));
     strcpy(expression, replaceWord(expression, "pow", "п"));
+    strcpy(expression, replaceWord(expression, "real", "д"));
+    strcpy(expression, replaceWord(expression, "imag", "м"));
+    strcpy(expression, replaceWord(expression, "phase", "ф"));
+    strcpy(expression, replaceWord(expression, "mag", "х"));
     return expression;
 }
 
@@ -529,6 +543,10 @@ _Dcomplex calculateExpression(char *expression)
     strcpy(temp2, replaceFuncToBrackets(temp2, "б", "(", ")a"));
     strcpy(temp2, replaceFuncToBrackets(temp2, "е", "(", ")e"));
     strcpy(temp2, replaceFuncToBrackets(temp2, "п", "(", ")p"));
+    strcpy(temp2, replaceFuncToBrackets(temp2, "д", "(", ")r"));
+    strcpy(temp2, replaceFuncToBrackets(temp2, "м", "(", ")i"));
+    strcpy(temp2, replaceFuncToBrackets(temp2, "ф", "(", ")f"));
+    strcpy(temp2, replaceFuncToBrackets(temp2, "х", "(", ")m"));
     makePostfixForm(temp2, result);
     printf("DEBUG: %s\n", result);
     return calculatePolish(result);
@@ -589,6 +607,7 @@ void check()
         strcpy(expression, replaceFuncToBrackets(expression, "б", "(", ")a"));
         strcpy(expression, replaceFuncToBrackets(expression, "е", "(", ")e"));
         strcpy(expression, replaceFuncToBrackets(expression, "п", "(", ")p"));
+        strcpy(expression, replaceFuncToBrackets(expression, "ф", "(", ")f"));
         makePostfixForm(expression, result);
         double AnswerForCurrentTest;
         char StringWithAnswer[STRING_SIZE] = {0};
