@@ -171,7 +171,8 @@ char* findUnaryMinus(char* inputStr, char* output)
 char* replaceComplexPlus(char* input, char complexI)
 {
     char res[SIZE] = { 0 };
-    strcpy(res, input);
+    int len = strlen(input);
+    for (int i = 0; i < strlen(input); i++) res[i] = input[i];
     for (int i = 0; i < strlen(res); i++)
     {
         if (res[i] == '+')
@@ -181,10 +182,24 @@ char* replaceComplexPlus(char* input, char complexI)
             {
                 if (res[j + 1] == complexI)
                 {
-                    res[pos] = COMPLEX_PLUS;
-                    res[j + 1] = ' ';
-                    i = j + 1;
-                    break;
+                    if (isNumber(res[pos - 1]))
+                    {
+                        int idx = 0;
+                        for (int k = pos - 1; (isNumber(res[k]) || res[k] == '.') && k >= 0; k--) idx = k;
+                        for (int k = len; k > idx; k--) res[k] = res[k - 1];
+                        res[idx] = '(';
+                        res[j + 2] = ')';
+                        res[pos + 1] = COMPLEX_PLUS;
+                        i = j + 2;
+                        break;
+                    }
+                    else
+                    {
+                        res[pos] = COMPLEX_PLUS;
+                        res[j + 1] = ' ';
+                        i = j + 1;
+                        break;
+                    }
                 }
             }
         }
@@ -201,8 +216,16 @@ char* replaceComplexPlus(char* input, char complexI)
                         res[k] = res[k - 1];
                     }
                     res[pos + 1] = '!';
-                    i = j + 1;
-                    break;
+                    if (pos > 0 && isNumber(res[pos - 1]))
+                    {
+                        int idx = 0;
+                        for (int k = pos - 1; (isNumber(res[k]) || res[k] == '.') && k >= 0; k--) idx = k;
+                        for (int k = idx + 1; k < strlen(res); k++) res[k] = res[k - 1];
+                        res[idx] = '(';
+                        res[j + 2] = ')';
+                        i = j + 3;
+                        break;
+                    }
                 }
             }
         }
@@ -539,7 +562,7 @@ char *replaceFuncToBrackets(char inputStr[], char name[], char toBeginning[], ch
 
     strcpy(result, replaceWord(result, MASKREPLACE, toBeginning));
     strcpy(result, replaceWord(result, REPLACERC, toEnd));
-//    printf("%s\n", result);
+ //   printf("%s\n", result);
     return result;
 }
 
@@ -552,6 +575,7 @@ char *makeSuitableForm(char *expression)
     strcpy(expression, replaceWord(expression, "(j", "(+1j"));
     strcpy(expression, deleteSpaces(expression, expression));
     strcpy(expression, replaceComplexPlus(expression, 'j'));
+    strcpy(expression, replaceWord(expression, ")$", ")+0$"));
     strcpy(expression, replaceWord(expression, "sin", "с"));
     strcpy(expression, replaceWord(expression, "cos", "к"));
     strcpy(expression, replaceWord(expression, "tg", "т"));
@@ -589,7 +613,7 @@ _Dcomplex calculateExpression(char *expression)
     strcpy(temp2, replaceFuncToBrackets(temp2, "ф", "(", ")f"));
     strcpy(temp2, replaceFuncToBrackets(temp2, "х", "(", ")m"));
     makePostfixForm(temp2, result);
-    printf("DEBUG: %s\n", result);
+    //printf("DEBUG: %s\n", result);
     return calculatePolish(result);
 }
 
