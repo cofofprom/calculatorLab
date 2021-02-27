@@ -15,6 +15,8 @@
 #define NumberOfOperators 5
 #define COMPLEX_PLUS '$'
 
+typedef struct _complex _complex;
+
 const char REPLACERO[2] = {1, 0};
 const char REPLACERC[2] = {2, 0};
 const char MASKREPLACE[3] = {1, '(', 0};
@@ -199,7 +201,7 @@ char *makePostfixForm(char *inputStr, char *output)
     for (int i = 0; i < strlen(inputStr); i++)
     {
         char cur = inputStr[i];
-        if (isNumber(cur) || (cur == '.' && isNumber(inputStr[i - 1])) || cur == '!')
+        if (isNumber(cur) || (cur == '.' && isNumber(inputStr[i - 1])) || cur == '!' || cur == '$')
         {
             if (flag) outputStr[StringPointer] = cur, StringPointer++;
             else
@@ -298,14 +300,54 @@ char *makePostfixForm(char *inputStr, char *output)
     return output;
 }
 
-double calculatePolish(char inputStr[])
+_complex add(_complex* x, _complex* y)
 {
-    double *stack = (double *) malloc(SIZE);
+    return (_complex) { x->x + y->x, x->y + y->y };
+}
+
+_complex sub(_complex* x, _complex* y)
+{
+    return (_complex) { x->x - y->x, x->y - y->y };
+}
+
+_complex mult(_complex* x, _complex* y)
+{
+    return (_complex) { x->x * y->x - x->y * y->y, x->y * y->x + x->x * y->y };
+}
+
+_complex divC(_complex* x, _complex* y)
+{
+    return (_complex) { x->x * 1/(y->x) - x->y * 1/(y->y), x->y* 1/(y->x) + x->x * 1/(y->y) };
+}
+
+_complex strToComplex(char str[])
+{
+    char imag[10] = { 0 };
+    char real[10] = { 0 };
+    int c = 0;
+    int i;
+    for (i = 0; str[i] != '$' && i < strlen(str); i++)
+    {
+        real[c++] = str[i];
+    }
+    c = 0;
+    for (int j = i + 1; j < strlen(str); j++)
+    {
+        imag[c++] = str[j];
+    }
+    double x = atof(real);
+    double y = atof(imag);
+    return (_complex) { x=x, y=y };
+}
+
+_complex calculatePolish(char inputStr[])
+{
+    _complex *stack = (_complex *) malloc(SIZE);
     int sp = 0;
     for (int i = 0; i < strlen(inputStr); i++)
     {
         char c = inputStr[i];
-        double x;
+        _complex x;
         char number[128] = {0};
         switch (c)
         {
@@ -313,27 +355,27 @@ double calculatePolish(char inputStr[])
             case '\n':
                 break;
             case '+':
-                stack[sp - 2] = stack[sp - 2] + stack[sp - 1];
+                stack[sp - 2] = add(&stack[sp - 2], &stack[sp - 1]);
                 sp--;
                 break;
             case '-':
-                stack[sp - 2] = stack[sp - 2] - stack[sp - 1];
+                stack[sp - 2] = sub(&stack[sp - 2], &stack[sp - 1]);
                 sp--;
                 break;
             case '*':
-                stack[sp - 2] = stack[sp - 1] * stack[sp - 2];
+                stack[sp - 2] = mult(&stack[sp - 1], &stack[sp - 2]);
                 sp--;
                 break;
             case '/':
-                if (stack[sp - 1] == 0)
+                /*if (stack[sp - 1] == 0)
                 {
                     printf("ERROR");
                     exit(0);
-                }
-                stack[sp - 2] = stack[sp - 2] / stack[sp - 1];
+                }*/
+                stack[sp - 2] = divC(&stack[sp - 2], &stack[sp - 1]);
                 sp--;
                 break;
-            case 'p':
+            /*case 'p':
             case '^':
                 stack[sp - 2] = pow(stack[sp - 2], stack[sp - 1]);
                 sp--;
@@ -365,10 +407,11 @@ double calculatePolish(char inputStr[])
             case 'l':
                 stack[sp-2] = ((double)log(stack[sp-1]))/((double)log(stack[sp-2]));
                 sp--;
-                break;
+                break;*/
             default:
                 for (int j = i; isNumber(inputStr[j]) || (inputStr[j] == '.' && isNumber(inputStr[j - 1]) ||
-                                                          (inputStr[j] == '!' && isNumber(inputStr[j + 1]))); j++)
+                                                          (inputStr[j] == '!' && isNumber(inputStr[j + 1])) ||
+                                                          (inputStr[j] == '$')); j++)
                 {
                     if (inputStr[j] == '!')
                         number[j - i] = '-';
@@ -376,12 +419,12 @@ double calculatePolish(char inputStr[])
                         number[j - i] = inputStr[j];
                 }
                 i += strlen(number);
-                x = atof(number);
+                x = strToComplex(number);
                 stack[sp] = x;
                 sp++;
         }
     }
-    double result = stack[sp - 1];
+    _complex result = stack[sp - 1];
     return result;
 }
 
@@ -468,7 +511,7 @@ char *makeSuitableForm(char *expression)
     return expression;
 }
 
-double calculateExpression(char *expression)
+_complex calculateExpression(char *expression)
 {
     char result[SIZE] = {0}, temp1[SIZE] = {0}, temp2[SIZE] = {0};
     strcpy(temp1, deleteSpaces(expression, temp1));
@@ -506,6 +549,8 @@ void check()
         strcpy(expression, deleteSpaces(expression, temp1));
         strcpy(expression, findUnaryMinus(expression, temp2));
         strcpy(expression, makeSuitableForm(expression));
+        strcpy(expression, replaceComplexPlus(expression, 'J'));
+        strcpy(expression, deleteSpaces(expression, temp1));
         Variable VariableData[STRING_SIZE] = {0};
         int NumberOfVariables = countVariables(expression);
         for (int i = 0; i < NumberOfVariables; i++)
@@ -544,12 +589,12 @@ void check()
         char StringWithAnswer[STRING_SIZE] = {0};
         fgets(StringWithAnswer, sizeof(StringWithAnswer), Answers);
         sscanf(StringWithAnswer, "%lf", &AnswerForCurrentTest);
-        if (abs(AnswerForCurrentTest - calculatePolish(result)) > eps)
+        /*if (abs(AnswerForCurrentTest - calculatePolish(result)) > eps)
         {
             printf("Wrong answer on test_case #%d: (%lf) instead of (%lf)\n", test_case, calculatePolish(result),
                    AnswerForCurrentTest);
             flag = true;
-        }
+        }*/
     }
     if (!flag) printf("Accepted");
 }
@@ -560,6 +605,8 @@ signed main()
     fgets(Expression, sizeof(Expression), stdin);
     Variable VariableData[STRING_SIZE] = {0};
     strcpy(Expression, makeSuitableForm(Expression));
+    strcpy(Expression, replaceComplexPlus(Expression, 'J'));
+    strcpy(Expression, deleteSpaces(Expression, Expression));
     int NumberOfVariables = countVariables(Expression);
     for (int i = 0; i < NumberOfVariables; i++)
     {
@@ -581,8 +628,8 @@ signed main()
         }
     }
     strcpy(Expression, makeSuitableForm(Expression));
-    double Result = calculateExpression(Expression);
-    printf("%lf", Result);
+    _complex Result = calculateExpression(Expression);
+    printf("%lf+%lfj", Result);
 //    check();
     return 0;
 }
