@@ -92,12 +92,12 @@ char *replaceWord(const char *s, const char *oldW,
 
 bool isOperator(char curChar)
 {
-    char Operators[NumberOfOperators] = {'+', '-', '*', '/', '^'};
-    for (int i = 0; i < NumberOfOperators; i++)
-    {
-        if (curChar == Operators[i]) return true;
-    }
-    return false;
+char Operators[NumberOfOperators] = { '+', '-', '*', '/', '^' };
+for (int i = 0; i < NumberOfOperators; i++)
+{
+    if (curChar == Operators[i]) return true;
+}
+return false;
 }
 
 bool isLetter(char curChar)
@@ -112,10 +112,10 @@ bool isNumber(char curChar)
     else return false;
 }
 
-int countVariables(char *expression)
+int countVariables(char* expression)
 {
     int j, cnt = 0, ptv = 0, ptn = 0;
-    char variables[STRING_SIZE][STRING_SIZE] = {0}, name[STRING_SIZE] = {0};
+    char variables[STRING_SIZE][STRING_SIZE] = { 0 }, name[STRING_SIZE] = { 0 };
     for (int i = 0; i < strlen(expression);)
     {
         bool f = false;
@@ -156,7 +156,7 @@ int countVariables(char *expression)
     return cnt;
 }
 
-char *findUnaryMinus(char *inputStr, char *output)
+char* findUnaryMinus(char* inputStr, char* output)
 {
     for (int i = 0; i < strlen(inputStr); i++)
     {
@@ -168,9 +168,9 @@ char *findUnaryMinus(char *inputStr, char *output)
     return output;
 }
 
-char *replaceComplexPlus(char *input, char complexI)
+char* replaceComplexPlus(char* input, char complexI)
 {
-    char res[SIZE] = {0};
+    char res[SIZE] = { 0 };
     strcpy(res, input);
     for (int i = 0; i < strlen(res); i++)
     {
@@ -187,6 +187,44 @@ char *replaceComplexPlus(char *input, char complexI)
                     break;
                 }
             }
+        }
+        else if (res[i] == '-')
+        {
+            int pos = i;
+            for (int j = i + 1; isNumber(res[j]) || res[j] == '.'; j++)
+            {
+                if (res[j + 1] == complexI)
+                {
+                    res[pos] = COMPLEX_PLUS;
+                    for (int k = pos + 2; k <= j + 1; k++)
+                    {
+                        res[k] = res[k - 1];
+                    }
+                    res[pos + 1] = '!';
+                    i = j + 1;
+                    break;
+                }
+            }
+        }
+    }
+    return res;
+}
+
+char* findSimpleImag(char* input, char complexI)
+{
+    char res[SIZE] = { 0 };
+    strcpy(res, input);
+    bool flag = false;
+    for (int i = 0; i < strlen(res); i++)
+    {
+        if (res[i] == '$' && (i == 0 || !isNumber(res[i - 1])))
+        {
+            for (int j = i + 1; j <= strlen(res); j++)
+            {
+                res[j] = res[j - 1];
+            }
+            res[i] = '0';
+            i++;
         }
     }
     return res;
@@ -509,8 +547,11 @@ char *makeSuitableForm(char *expression)
 {
     strcpy(expression, replaceWord(expression, "PI", "3.1415926"));
     strcpy(expression, replaceWord(expression, "E", "2.71828"));
+    strcpy(expression, replaceWord(expression, "+j", "+1j"));
+    strcpy(expression, replaceWord(expression, "-j", "-1j"));
+    strcpy(expression, replaceWord(expression, "(j", "(+1j"));
     strcpy(expression, deleteSpaces(expression, expression));
-//    strcpy(expression, replaceComplexPlus(expression, 'J'));
+    strcpy(expression, replaceComplexPlus(expression, 'j'));
     strcpy(expression, replaceWord(expression, "sin", "с"));
     strcpy(expression, replaceWord(expression, "cos", "к"));
     strcpy(expression, replaceWord(expression, "tg", "т"));
@@ -552,76 +593,75 @@ _Dcomplex calculateExpression(char *expression)
     return calculatePolish(result);
 }
 
-void check()
-{
-    FILE *Tests, *Answers;
-    bool flag = false;
-    Tests = fopen("Tests.txt", "r");
-    Answers = fopen("TestAnswers.txt", "r");
-    char temp[STRING_SIZE] = {0};
-    fgets(temp, STRING_SIZE, Tests);
-    int NumberOfTests;
-    sscanf(temp, "%d", &NumberOfTests);
-    for (int test_case = 1; test_case <= NumberOfTests; test_case++)
-    {
-        char result[SIZE] = {0}, temp1[SIZE] = {0}, temp2[SIZE] = {0}, expression[SIZE] = {0};;
-        fgets(expression, sizeof(expression), Tests);
-        strcpy(expression, makeSuitableForm(expression));
-        strcpy(expression, deleteSpaces(expression, temp1));
-        strcpy(expression, findUnaryMinus(expression, temp2));
-        strcpy(expression, makeSuitableForm(expression));
-        strcpy(expression, replaceComplexPlus(expression, 'J'));
-        strcpy(expression, deleteSpaces(expression, temp1));
-        Variable VariableData[STRING_SIZE] = {0};
-        int NumberOfVariables = countVariables(expression);
-        for (int i = 0; i < NumberOfVariables; i++)
-        {
-            char str[STRING_SIZE] = {0};
-            fgets(str, sizeof(str), Tests);
-            char *rest = strchr(str, (int) '=');
-            rest[strlen(rest) - 1] = 0;
-            sscanf(str, "%s", VariableData[i].Name);
-            strcpy(VariableData[i].Value, rest);
-        }
-        while (countVariables(expression))
-        {
-            strcpy(expression, replaceWord(expression, "PI", "3.1415926"));
-            strcpy(expression, replaceWord(expression, "E", "2.71828"));
-            strcpy(expression, replaceComplexPlus(expression, 'J'));
-            strcpy(expression, deleteSpaces(expression, temp1));
-            int NumberOfVariables = countVariables(expression);
-            for (int i = 0; i < NumberOfVariables; i++)
-            {
-                strcpy(expression, replaceWord(expression, VariableData[i].Name, VariableData[i].Value));
-            }
-        }
-//        printf("%s %s\n", expression, temp2);
-        strcpy(expression, makeSuitableForm(expression));
-        strcpy(expression, replaceFuncToBrackets(expression, "с", "(", ")s"));
-        strcpy(expression, replaceFuncToBrackets(expression, "к", "(", ")c"));
-        strcpy(expression, replaceFuncToBrackets(expression, "т", "(", ")t"));
-        strcpy(expression, replaceFuncToBrackets(expression, "л", "(", ")l"));
-        strcpy(expression, replaceFuncToBrackets(expression, "н", "(", ")n"));
-        strcpy(expression, replaceFuncToBrackets(expression, "г", "(", ")g"));
-        strcpy(expression, replaceFuncToBrackets(expression, "р", "(", ")q"));
-        strcpy(expression, replaceFuncToBrackets(expression, "б", "(", ")a"));
-        strcpy(expression, replaceFuncToBrackets(expression, "е", "(", ")e"));
-        strcpy(expression, replaceFuncToBrackets(expression, "п", "(", ")p"));
-        strcpy(expression, replaceFuncToBrackets(expression, "ф", "(", ")f"));
-        makePostfixForm(expression, result);
-        double AnswerForCurrentTest;
-        char StringWithAnswer[STRING_SIZE] = {0};
-        fgets(StringWithAnswer, sizeof(StringWithAnswer), Answers);
-        sscanf(StringWithAnswer, "%lf", &AnswerForCurrentTest);
-        /*if (abs(AnswerForCurrentTest - calculatePolish(result)) > eps)
-        {
-            printf("Wrong answer on test_case #%d: (%lf) instead of (%lf)\n", test_case, calculatePolish(result),
-                   AnswerForCurrentTest);
-            flag = true;
-        }*/
-    }
-    if (!flag) printf("Accepted");
-}
+//void check()
+//{
+//    FILE *Tests, *Answers;
+//    bool flag = false;
+//    Tests = fopen("Tests.txt", "r");
+//    Answers = fopen("TestAnswers.txt", "r");
+//    char temp[STRING_SIZE] = {0};
+//    fgets(temp, STRING_SIZE, Tests);
+//    int NumberOfTests;
+//    sscanf(temp, "%d", &NumberOfTests);
+//    for (int test_case = 1; test_case <= NumberOfTests; test_case++)
+//    {
+//        char result[SIZE] = {0}, temp1[SIZE] = {0}, temp2[SIZE] = {0}, expression[SIZE] = {0};;
+//        fgets(expression, sizeof(expression), Tests);
+//        strcpy(expression, makeSuitableForm(expression));
+//        strcpy(expression, deleteSpaces(expression, temp1));
+//        strcpy(expression, findUnaryMinus(expression, temp2));
+//        strcpy(expression, makeSuitableForm(expression));
+//        strcpy(expression, replaceComplexPlus(expression, 'J'));
+//        strcpy(expression, deleteSpaces(expression, temp1));
+//        Variable VariableData[STRING_SIZE] = {0};
+//        int NumberOfVariables = countVariables(expression);
+//        for (int i = 0; i < NumberOfVariables; i++)
+//        {
+//            char str[STRING_SIZE] = {0};
+//            fgets(str, sizeof(str), Tests);
+//            char *rest = strchr(str, (int) '=');
+//            rest[strlen(rest) - 1] = 0;
+//            sscanf(str, "%s", VariableData[i].Name);
+//            strcpy(VariableData[i].Value, rest);
+//        }
+//        while (countVariables(expression))
+//        {
+//            strcpy(expression, replaceWord(expression, "PI", "3.1415926"));
+//            strcpy(expression, replaceWord(expression, "E", "2.71828"));
+//            strcpy(expression, replaceComplexPlus(expression, 'J'));
+//            strcpy(expression, deleteSpaces(expression, temp1));
+//            int NumberOfVariables = countVariables(expression);
+//            for (int i = 0; i < NumberOfVariables; i++)
+//            {
+//                strcpy(expression, replaceWord(expression, VariableData[i].Name, VariableData[i].Value));
+//            }
+//        }
+//        strcpy(expression, makeSuitableForm(expression));
+//        strcpy(expression, replaceFuncToBrackets(expression, "с", "(", ")s"));
+//        strcpy(expression, replaceFuncToBrackets(expression, "к", "(", ")c"));
+//        strcpy(expression, replaceFuncToBrackets(expression, "т", "(", ")t"));
+//        strcpy(expression, replaceFuncToBrackets(expression, "л", "(", ")l"));
+//        strcpy(expression, replaceFuncToBrackets(expression, "н", "(", ")n"));
+//        strcpy(expression, replaceFuncToBrackets(expression, "г", "(", ")g"));
+//        strcpy(expression, replaceFuncToBrackets(expression, "р", "(", ")q"));
+//        strcpy(expression, replaceFuncToBrackets(expression, "б", "(", ")a"));
+//        strcpy(expression, replaceFuncToBrackets(expression, "е", "(", ")e"));
+//        strcpy(expression, replaceFuncToBrackets(expression, "п", "(", ")p"));
+//        strcpy(expression, replaceFuncToBrackets(expression, "ф", "(", ")f"));
+//        makePostfixForm(expression, result);
+//        double AnswerForCurrentTest;
+//        char StringWithAnswer[STRING_SIZE] = {0};
+//        fgets(StringWithAnswer, sizeof(StringWithAnswer), Answers);
+//        sscanf(StringWithAnswer, "%lf", &AnswerForCurrentTest);
+//        if (abs(AnswerForCurrentTest - calculatePolish(result)) > eps)
+//        {
+//            printf("Wrong answer on test_case #%d: (%lf) instead of (%lf)\n", test_case, calculatePolish(result),
+//                   AnswerForCurrentTest);
+//            flag = true;
+//        }
+//    }
+//    if (!flag) printf("Accepted");
+//}
 
 signed main()
 {
@@ -649,7 +689,7 @@ signed main()
         for (int i = 0; i < NumberOfVariables; i++)
         {
             strcpy(Expression, replaceWord(Expression, VariableData[i].Name, VariableData[i].Value));
-            strcpy(Expression, replaceComplexPlus(Expression, 'J'));
+            strcpy(Expression, replaceComplexPlus(Expression, 'j'));
             strcpy(Expression, deleteSpaces(Expression, Expression));
         }
     }
