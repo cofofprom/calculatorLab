@@ -649,6 +649,8 @@ signed main()
         for (int i = 0; i < NumberOfVariables; i++)
         {
             strcpy(Expression, replaceWord(Expression, VariableData[i].Name, VariableData[i].Value));
+            strcpy(Expression, replaceComplexPlus(Expression, 'J'));
+            strcpy(Expression, deleteSpaces(Expression, Expression));
         }
     }
     strcpy(Expression, makeSuitableForm(Expression));
