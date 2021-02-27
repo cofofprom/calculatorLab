@@ -300,27 +300,28 @@ char *makePostfixForm(char *inputStr, char *output)
     return output;
 }
 
-_complex add(_complex* x, _complex* y)
+_Dcomplex add(_Dcomplex* x, _Dcomplex* y)
 {
-    return (_complex) { x->x + y->x, x->y + y->y };
+    return (_Dcomplex) { creal(*x) + creal(*y), cimag(*x) + cimag(*y) };
 }
 
-_complex sub(_complex* x, _complex* y)
+_Dcomplex sub(_Dcomplex* x, _Dcomplex* y)
 {
-    return (_complex) { x->x - y->x, x->y - y->y };
+    return (_Dcomplex) { creal(*x) - creal(*y), cimag(*x) - cimag(*y) };
 }
 
-_complex mult(_complex* x, _complex* y)
+_Dcomplex mult(_Dcomplex* x, _Dcomplex* y)
 {
-    return (_complex) { x->x * y->x - x->y * y->y, x->y * y->x + x->x * y->y };
+    return (_Dcomplex) { creal(*x) * creal(*y) - cimag(*x) * cimag(*y), cimag(*x) * creal(*y) + creal(*x) * cimag(*y) };
 }
 
-_complex divC(_complex* x, _complex* y)
+_Dcomplex divC(_Dcomplex x, _Dcomplex y)
 {
-    return (_complex) { x->x * 1/(y->x) - x->y * 1/(y->y), x->y* 1/(y->x) + x->x * 1/(y->y) };
+    return (_Dcomplex) { ((creal(x) * creal(y) + cimag(x) * cimag(y)) / (creal(y)*creal(y) + cimag(y) * cimag(y))),
+        (creal(y)*cimag(x) - creal(x) * cimag(y)) / (creal(y) * creal(y) + cimag(y) * cimag(y))};
 }
 
-_complex strToComplex(char str[])
+_Dcomplex strToComplex(char str[])
 {
     char imag[10] = { 0 };
     char real[10] = { 0 };
@@ -337,18 +338,18 @@ _complex strToComplex(char str[])
     }
     double x = atof(real);
     double y = atof(imag);
-    return (_complex) { x=x, y=y };
+    _Dcomplex result = { x, y };
+    return result;
 }
 
-_complex calculatePolish(char inputStr[])
+_Dcomplex calculatePolish(char inputStr[])
 {
-    _complex *stack = (_complex *) malloc(SIZE);
+    _Dcomplex *stack = (_Dcomplex *) malloc(SIZE);
     int sp = 0;
     for (int i = 0; i < strlen(inputStr); i++)
     {
         char c = inputStr[i];
-        _complex x;
-        _Dcomplex temp;
+        _Dcomplex x;
         char number[128] = {0};
         switch (c)
         {
@@ -373,50 +374,43 @@ _complex calculatePolish(char inputStr[])
                     printf("ERROR");
                     exit(0);
                 }*/
-                stack[sp - 2] = divC(&stack[sp - 2], &stack[sp - 1]);
+                stack[sp - 2] = divC(stack[sp - 2], stack[sp - 1]);
                 sp--;
                 break;
-            /*case 'p':
+            case 'p':
             case '^':
-                stack[sp - 2] = pow(stack[sp - 2], stack[sp - 1]);
+                stack[sp - 2] = cpow(stack[sp - 2], stack[sp - 1]);
                 sp--;
-                break;*/
+                break;
             case 's':
-                temp._Val[0] = stack[sp - 1].x;
-                temp._Val[1] = stack[sp - 1].y;
-                temp = csin(temp);
-                stack[sp - 1].x = temp._Val[0];
-                stack[sp - 1].y = temp._Val[1];
+                stack[sp - 1] = csin(stack[sp - 1]);
                 break;
             case 'c':
-                temp._Val[0] = stack[sp - 1].x;
-                temp._Val[1] = stack[sp - 1].y;
-                temp = ccos(temp);
-                stack[sp - 1].x = temp._Val[0];
-                stack[sp - 1].y = temp._Val[1];
-                break;/*
+                stack[sp - 1] = ccos(stack[sp - 1]);
+                break;
             case 'n':
-                stack[sp - 1] = log(stack[sp - 1]);
+                stack[sp - 1] = clog(stack[sp - 1]);
                 break;
             case 'g':
-                stack[sp - 1] = log10(stack[sp - 1]);
+                stack[sp - 2] = divC(clog((_Dcomplex) { 10, 0 }), clog(stack[sp - 2]));
+                sp--;
                 break;
             case 'a':
-                stack[sp - 1] = fabs(stack[sp - 1]);
+                stack[sp - 1] = (_Dcomplex){ cabs(stack[sp - 1]), 0 };
                 break;
             case 't':
-                stack[sp - 1] = tan(stack[sp - 1]);
+                stack[sp - 1] = ctan(stack[sp - 1]);
                 break;
             case 'q':
-                stack[sp - 1] = sqrt(stack[sp - 1]);
+                stack[sp - 1] = csqrt(stack[sp - 1]);
                 break;
             case 'e':
-                stack[sp - 1] = exp(stack[sp - 1]);
+                stack[sp - 1] = cexp(stack[sp - 1]);
                 break;
             case 'l':
-                stack[sp-2] = ((double)log(stack[sp-1]))/((double)log(stack[sp-2]));
+                stack[sp-2] = divC(clog(stack[sp-1]),clog(stack[sp-2]));
                 sp--;
-                break;*/
+                break;
             default:
                 for (int j = i; isNumber(inputStr[j]) || (inputStr[j] == '.' && isNumber(inputStr[j - 1]) ||
                                                           (inputStr[j] == '!' && isNumber(inputStr[j + 1])) ||
@@ -433,7 +427,7 @@ _complex calculatePolish(char inputStr[])
                 sp++;
         }
     }
-    _complex result = stack[sp - 1];
+    _Dcomplex result = stack[sp - 1];
     return result;
 }
 
@@ -520,7 +514,7 @@ char *makeSuitableForm(char *expression)
     return expression;
 }
 
-_complex calculateExpression(char *expression)
+_Dcomplex calculateExpression(char *expression)
 {
     char result[SIZE] = {0}, temp1[SIZE] = {0}, temp2[SIZE] = {0};
     strcpy(temp1, deleteSpaces(expression, temp1));
@@ -575,6 +569,8 @@ void check()
         {
             strcpy(expression, replaceWord(expression, "PI", "3.1415926"));
             strcpy(expression, replaceWord(expression, "E", "2.71828"));
+            strcpy(expression, replaceComplexPlus(expression, 'J'));
+            strcpy(expression, deleteSpaces(expression, temp1));
             int NumberOfVariables = countVariables(expression);
             for (int i = 0; i < NumberOfVariables; i++)
             {
@@ -637,8 +633,8 @@ signed main()
         }
     }
     strcpy(Expression, makeSuitableForm(Expression));
-    _complex Result = calculateExpression(Expression);
-    printf("%lf+%lfj", Result);
+    _Dcomplex Result = calculateExpression(Expression);
+    printf("%lf+%lfj", creal(Result), cimag(Result));
 //    check();
     return 0;
 }
