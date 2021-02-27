@@ -348,6 +348,7 @@ _complex calculatePolish(char inputStr[])
     {
         char c = inputStr[i];
         _complex x;
+        _Dcomplex temp;
         char number[128] = {0};
         switch (c)
         {
@@ -379,13 +380,21 @@ _complex calculatePolish(char inputStr[])
             case '^':
                 stack[sp - 2] = pow(stack[sp - 2], stack[sp - 1]);
                 sp--;
-                break;
+                break;*/
             case 's':
-                stack[sp - 1] = sin(stack[sp - 1]);
+                temp._Val[0] = stack[sp - 1].x;
+                temp._Val[1] = stack[sp - 1].y;
+                temp = csin(temp);
+                stack[sp - 1].x = temp._Val[0];
+                stack[sp - 1].y = temp._Val[1];
                 break;
             case 'c':
-                stack[sp - 1] = cos(stack[sp - 1]);
-                break;
+                temp._Val[0] = stack[sp - 1].x;
+                temp._Val[1] = stack[sp - 1].y;
+                temp = ccos(temp);
+                stack[sp - 1].x = temp._Val[0];
+                stack[sp - 1].y = temp._Val[1];
+                break;/*
             case 'n':
                 stack[sp - 1] = log(stack[sp - 1]);
                 break;
