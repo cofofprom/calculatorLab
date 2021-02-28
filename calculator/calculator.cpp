@@ -693,7 +693,7 @@ signed main()
     fgets(Expression, sizeof(Expression), stdin);
     Variable VariableData[STRING_SIZE] = {0};
     strcpy(Expression, makeSuitableForm(Expression));
-    //strcpy(Expression, replaceComplexPlus(Expression, 'j'));
+    strcpy(Expression, replaceComplexPlus(Expression, 'j'));
     strcpy(Expression, deleteSpaces(Expression, Expression));
     int NumberOfVariables = countVariables(Expression);
     for (int i = 0; i < NumberOfVariables; i++)
@@ -714,7 +714,7 @@ signed main()
         for (int i = 0; i < NumberOfVariables; i++)
         {
             strcpy(Expression, replaceWord(Expression, VariableData[i].Name, VariableData[i].Value));
-            //strcpy(Expression, replaceComplexPlus(Expression, 'j'));
+            strcpy(Expression, replaceComplexPlus(Expression, 'j'));
             strcpy(Expression, deleteSpaces(Expression, Expression));
         }
     }
