@@ -322,6 +322,7 @@ _Dcomplex calculatePolish(char inputStr[])
     int sp = 0;
     for (int i = 0; i < strlen(inputStr); i++)
     {
+        bool flag = false;
         char c = inputStr[i];
         char number[128] = { 0 };
         switch (c)
@@ -395,7 +396,6 @@ _Dcomplex calculatePolish(char inputStr[])
             stack[sp - 1] = (_Dcomplex){ carg(stack[sp - 1]), 0 };
             break;
         default:
-            bool flag = false;
             for (int j = i; isNumber(inputStr[j]) || (inputStr[j] == '.' && isNumber(inputStr[j - 1])) ||
                 (inputStr[j] == '!' && isNumber(inputStr[j + 1])) || inputStr[j] == 'j'; j++)
             {
@@ -630,6 +630,11 @@ void check()
             x = strToComplex(re, false);
             y = strToComplex(im, true);
             AnswerForCurrentTest = add(&x, &y);
+        }
+        else
+        {
+            StringWithAnswer[strlen(StringWithAnswer) - 1] = '\0';
+            AnswerForCurrentTest = strToComplex(StringWithAnswer, isComplex);
         }
         if (fabs(creal(AnswerForCurrentTest) - creal(calculatePolish(result))) > eps || fabs(cimag(AnswerForCurrentTest) - cimag(calculatePolish(result))) > eps)
         {
