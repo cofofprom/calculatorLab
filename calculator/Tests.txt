@@ -41,7 +41,7 @@ phase(5j) - 3*3.33*(real(z1) + imag(z2))/xxx
 z1 = 2+j
 z2 = 3.52-2.25j
 xxx = 1.0101010101
-log(2, 3) - ln(3)/ln(2) + j - 1j + 1.0j - aj
+log(2, 3) - ln(3)/ln(2) + j - 1j + 1.0j - a*j
 a = 1.0000000000
 (sin(z1))^2 + pow(cos(z2), 2)
 z1 = 2 + j - 1j
