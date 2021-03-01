@@ -1,4 +1,4 @@
-﻿//ОПРЕДЕЛЕНИЯ И БИБЛИОТЕКИ 
+//ОПРЕДЕЛЕНИЯ И БИБЛИОТЕКИ 
 #define _CRT_SECURE_NO_WARNINGS
 
 #include <stdio.h>
@@ -168,92 +168,6 @@ char* findUnaryMinus(char* inputStr, char* output)
     return output;
 }
 
-//char* replaceComplexPlus(char* input, char complexI)
-//{
-//    char res[SIZE] = { 0 };
-//    //int len = strlen(input);
-//    for (int i = 0; i < strlen(input); i++) res[i] = input[i];
-//    for (int i = 0; i < strlen(res); i++)
-//    {
-//        int len = strlen(input);
-//        if (res[i] == '+')
-//        {
-//            int pos = i;
-//            for (int j = i + 1; isNumber(res[j]) || res[j] == '.'; j++)
-//            {
-//                if (res[j + 1] == complexI)
-//                {
-//                    if (isNumber(res[pos - 1]))
-//                    {
-//                        int idx = 0;
-//                        for (int k = pos - 1; (isNumber(res[k]) || res[k] == '.' || res[k] == '!') && k >= 0; k--) idx = k;
-//                        for (int k = len; k > idx; k--) res[k] = res[k - 1];
-//                        res[idx] = '(';
-//                        res[j + 2] = ')';
-//                        res[pos + 1] = COMPLEX_PLUS;
-//                        i = j + 2;
-//                        break;
-//                    }
-//                    else
-//                    {
-//                        res[pos] = COMPLEX_PLUS;
-//                        res[j + 1] = ' ';
-//                        i = j + 1;
-//                        break;
-//                    }
-//                }
-//            }
-//        }
-//        else if (res[i] == '-')
-//        {
-//            int pos = i;
-//            for (int j = i + 1; isNumber(res[j]) || res[j] == '.'; j++)
-//            {
-//                if (res[j + 1] == complexI)
-//                {
-//                    res[pos] = COMPLEX_PLUS;
-//                    for (int k = len; res[k] != '$'; k--)
-//                    {
-//                        res[k] = res[k - 1];
-//                    }
-//                    res[pos + 1] = '!';
-//                    if (pos > 0 && isNumber(res[pos - 1]))
-//                    {
-//                        int idx = 0;
-//                        for (int k = pos - 1; (isNumber(res[k]) || res[k] == '.' || res[k] == '!') && k >= 0; k--) idx = k;
-//                        for (int k = len + 1; k > idx; k--) res[k] = res[k - 1];
-//                        res[idx] = '(';
-//                        res[j + 3] = ')';
-//                        i = j + 4;
-//                        break;
-//                    }
-//                }
-//            }
-//        }
-//    }
-//    return res;
-//}
-
-//char* findSimpleImag(char* input, char complexI)
-//{
-//    char res[SIZE] = { 0 };
-//    strcpy(res, input);
-//    bool flag = false;
-//    for (int i = 0; i < strlen(res); i++)
-//    {
-//        if (res[i] == '$' && (i == 0 || !isNumber(res[i - 1])))
-//        {
-//            for (int j = i + 1; j <= strlen(res); j++)
-//            {
-//                res[j] = res[j - 1];
-//            }
-//            res[i] = '0';
-//            i++;
-//        }
-//    }
-//    return res;
-//}
-
 char* makePostfixForm(char* inputStr, char* output)
 {
     bool flag = false;
@@ -409,7 +323,6 @@ _Dcomplex calculatePolish(char inputStr[])
     for (int i = 0; i < strlen(inputStr); i++)
     {
         char c = inputStr[i];
-        //_Dcomplex x;
         char number[128] = { 0 };
         switch (c)
         {
@@ -564,7 +477,6 @@ char* replaceFuncToBrackets(char inputStr[], char name[], char toBeginning[], ch
 
     strcpy(result, replaceWord(result, MASKREPLACE, toBeginning));
     strcpy(result, replaceWord(result, REPLACERC, toEnd));
-    //   printf("%s\n", result);
     return result;
 }
 
@@ -577,7 +489,6 @@ char* makeSuitableForm(char* expression)
     strcpy(expression, replaceWord(expression, "(j", "(1j"));
     strcpy(expression, findUnaryMinus(expression, expression));
     strcpy(expression, deleteSpaces(expression, expression));
-    //strcpy(expression, replaceComplexPlus(expression, 'j'));
     strcpy(expression, replaceWord(expression, ")$", ")+0$"));
     strcpy(expression, replaceWord(expression, "sin", "с"));
     strcpy(expression, replaceWord(expression, "cos", "к"));
@@ -697,20 +608,8 @@ signed main()
     Expression[strlen(Expression) - 1] = 0;
     Variable VariableData[STRING_SIZE] = { 0 };
     strcpy(Expression, makeSuitableForm(Expression));
-    //strcpy(Expression, replaceComplexPlus(Expression, 'j'));
     strcpy(Expression, deleteSpaces(Expression, Expression));
     int NumberOfVariables = countVariables(Expression);
-    /*for (int i = 0; i < NumberOfVariables; i++)
-    {
-        char str[STRING_SIZE] = { 0 };
-        fgets(str, sizeof(str), stdin);
-        char* rest = strchr(str, (int)'=');
-        rest[0] = ' ';
-        rest[strlen(rest) - 1] = 0;
-        sscanf(str, "%s", VariableData[i].Name);
-        strcpy(VariableData[i].Value, rest);
-        NumberOfVariables += countVariables(rest);
-    }*/
     int alli = 0;
     char str[STRING_SIZE] = { 0 };
     while (fgets(str, sizeof(str), stdin) != NULL)
@@ -732,22 +631,36 @@ signed main()
         {
             strcpy(Expression, replaceWord(Expression, "PI", "3.1415926"));
             strcpy(Expression, replaceWord(Expression, "E", "2.71828"));
-            strcpy(Expression, replaceWord(Expression, VariableData[i].Name, VariableData[i].Value));
+            char brackets[STRING_SIZE] = { 0 };
+            strcat(brackets, "(");
+            strcat(brackets, VariableData[i].Value);
+            strcat(brackets, ")");
+            strcpy(Expression, replaceWord(Expression, VariableData[i].Name, brackets));
             strcpy(Expression, deleteSpaces(Expression, Expression));
             strcpy(Expression, makeSuitableForm(Expression));
-            //strcpy(Expression, replaceComplexPlus(Expression, 'j'));
             strcpy(Expression, deleteSpaces(Expression, Expression));
         }
     }
     strcpy(Expression, makeSuitableForm(Expression));
     _Dcomplex Result = calculateExpression(Expression);
-    if (cimag(Result) != 0)
+    if (cimag(Result) == 0)
     {
-        printf("%lf+%lfj", creal(Result), cimag(Result));
+        printf("%lf", creal(Result));
+    }
+    else if (creal(Result)==0)
+    {
+        printf("%lfj", cimag(Result));
     }
     else
     {
-        printf("%lf", creal(Result));
+        if (cimag(Result) < 0)
+        {
+            printf("%lf%lfj", creal(Result), cimag(Result));
+        }
+        else
+        {
+            printf("%lf+%lfj", creal(Result), cimag(Result));
+        }
     }
     //    check();
     return 0;
