@@ -171,10 +171,11 @@ char* findUnaryMinus(char* inputStr, char* output)
 char* replaceComplexPlus(char* input, char complexI)
 {
     char res[SIZE] = { 0 };
-    int len = strlen(input);
+    //int len = strlen(input);
     for (int i = 0; i < strlen(input); i++) res[i] = input[i];
     for (int i = 0; i < strlen(res); i++)
     {
+        int len = strlen(input);
         if (res[i] == '+')
         {
             int pos = i;
@@ -185,7 +186,7 @@ char* replaceComplexPlus(char* input, char complexI)
                     if (isNumber(res[pos - 1]))
                     {
                         int idx = 0;
-                        for (int k = pos - 1; (isNumber(res[k]) || res[k] == '.') && k >= 0; k--) idx = k;
+                        for (int k = pos - 1; (isNumber(res[k]) || res[k] == '.' || res[k] == '!') && k >= 0; k--) idx = k;
                         for (int k = len; k > idx; k--) res[k] = res[k - 1];
                         res[idx] = '(';
                         res[j + 2] = ')';
@@ -211,7 +212,7 @@ char* replaceComplexPlus(char* input, char complexI)
                 if (res[j + 1] == complexI)
                 {
                     res[pos] = COMPLEX_PLUS;
-                    for (int k = pos + 2; k <= j + 1; k++)
+                    for (int k = len; res[k] != '$'; k--)
                     {
                         res[k] = res[k - 1];
                     }
@@ -219,11 +220,11 @@ char* replaceComplexPlus(char* input, char complexI)
                     if (pos > 0 && isNumber(res[pos - 1]))
                     {
                         int idx = 0;
-                        for (int k = pos - 1; (isNumber(res[k]) || res[k] == '.') && k >= 0; k--) idx = k;
-                        for (int k = idx + 1; k < strlen(res); k++) res[k] = res[k - 1];
+                        for (int k = pos - 1; (isNumber(res[k]) || res[k] == '.' || res[k] == '!') && k >= 0; k--) idx = k;
+                        for (int k = len+1; k > idx; k--) res[k] = res[k - 1];
                         res[idx] = '(';
-                        res[j + 2] = ')';
-                        i = j + 3;
+                        res[j + 3] = ')';
+                        i = j + 4;
                         break;
                     }
                 }
@@ -575,6 +576,7 @@ char* makeSuitableForm(char* expression)
     strcpy(expression, replaceWord(expression, "+j", "+1j"));
     strcpy(expression, replaceWord(expression, "-j", "-1j"));
     strcpy(expression, replaceWord(expression, "(j", "(+1j"));
+    strcpy(expression, findUnaryMinus(expression, expression));
     strcpy(expression, deleteSpaces(expression, expression));
     strcpy(expression, replaceComplexPlus(expression, 'j'));
     strcpy(expression, replaceWord(expression, ")$", ")+0$"));
@@ -693,6 +695,7 @@ signed main()
 {
     char Expression[SIZE];
     fgets(Expression, sizeof(Expression), stdin);
+    Expression[strlen(Expression) - 1] = 0;
     Variable VariableData[STRING_SIZE] = { 0 };
     strcpy(Expression, makeSuitableForm(Expression));
     strcpy(Expression, replaceComplexPlus(Expression, 'j'));
@@ -709,7 +712,7 @@ signed main()
         strcpy(VariableData[i].Value, rest);
         NumberOfVariables += countVariables(rest);
     }*/
-    int i = 0;
+    int alli = 0;
     char str[STRING_SIZE] = { 0 };
     while (fgets(str, sizeof(str), stdin) != NULL)
     {
@@ -717,18 +720,22 @@ signed main()
         if (rest == NULL) break;
         rest[0] = ' ';
         rest[strlen(rest) - 1] = 0;
-        sscanf(str, "%s", VariableData[i].Name);
-        strcpy(VariableData[i].Value, rest);
-        i++;
+        sscanf(str, "%s", VariableData[alli].Name);
+        strcpy(VariableData[alli].Value, rest);
+        alli++;
     }
+    strcpy(Expression, replaceWord(Expression, "PI", "3.1415926"));
+    strcpy(Expression, replaceWord(Expression, "E", "2.71828"));
     while (countVariables(Expression))
     {
-        strcpy(Expression, replaceWord(Expression, "PI", "3.1415926"));
-        strcpy(Expression, replaceWord(Expression, "E", "2.71828"));
         int NumberOfVariables = countVariables(Expression);
-        for (int i = 0; i < NumberOfVariables; i++)
+        for (int i = 0; i < alli; i++)
         {
+            strcpy(Expression, replaceWord(Expression, "PI", "3.1415926"));
+            strcpy(Expression, replaceWord(Expression, "E", "2.71828"));
             strcpy(Expression, replaceWord(Expression, VariableData[i].Name, VariableData[i].Value));
+            strcpy(Expression, deleteSpaces(Expression, Expression));
+            strcpy(Expression, makeSuitableForm(Expression));
             strcpy(Expression, replaceComplexPlus(Expression, 'j'));
             strcpy(Expression, deleteSpaces(Expression, Expression));
         }
