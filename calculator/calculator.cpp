@@ -120,7 +120,7 @@ int countVariables(char* expression)
     {
         bool f = false;
         char cur = expression[i];
-        if (isLetter(cur))
+        if (isLetter(cur) && cur!='j')
         {
             for (j = i; j < strlen(expression); j++)
             {
@@ -168,91 +168,91 @@ char* findUnaryMinus(char* inputStr, char* output)
     return output;
 }
 
-char* replaceComplexPlus(char* input, char complexI)
-{
-    char res[SIZE] = { 0 };
-    //int len = strlen(input);
-    for (int i = 0; i < strlen(input); i++) res[i] = input[i];
-    for (int i = 0; i < strlen(res); i++)
-    {
-        int len = strlen(input);
-        if (res[i] == '+')
-        {
-            int pos = i;
-            for (int j = i + 1; isNumber(res[j]) || res[j] == '.'; j++)
-            {
-                if (res[j + 1] == complexI)
-                {
-                    if (isNumber(res[pos - 1]))
-                    {
-                        int idx = 0;
-                        for (int k = pos - 1; (isNumber(res[k]) || res[k] == '.' || res[k] == '!') && k >= 0; k--) idx = k;
-                        for (int k = len; k > idx; k--) res[k] = res[k - 1];
-                        res[idx] = '(';
-                        res[j + 2] = ')';
-                        res[pos + 1] = COMPLEX_PLUS;
-                        i = j + 2;
-                        break;
-                    }
-                    else
-                    {
-                        res[pos] = COMPLEX_PLUS;
-                        res[j + 1] = ' ';
-                        i = j + 1;
-                        break;
-                    }
-                }
-            }
-        }
-        else if (res[i] == '-')
-        {
-            int pos = i;
-            for (int j = i + 1; isNumber(res[j]) || res[j] == '.'; j++)
-            {
-                if (res[j + 1] == complexI)
-                {
-                    res[pos] = COMPLEX_PLUS;
-                    for (int k = len; res[k] != '$'; k--)
-                    {
-                        res[k] = res[k - 1];
-                    }
-                    res[pos + 1] = '!';
-                    if (pos > 0 && isNumber(res[pos - 1]))
-                    {
-                        int idx = 0;
-                        for (int k = pos - 1; (isNumber(res[k]) || res[k] == '.' || res[k] == '!') && k >= 0; k--) idx = k;
-                        for (int k = len+1; k > idx; k--) res[k] = res[k - 1];
-                        res[idx] = '(';
-                        res[j + 3] = ')';
-                        i = j + 4;
-                        break;
-                    }
-                }
-            }
-        }
-    }
-    return res;
-}
+//char* replaceComplexPlus(char* input, char complexI)
+//{
+//    char res[SIZE] = { 0 };
+//    //int len = strlen(input);
+//    for (int i = 0; i < strlen(input); i++) res[i] = input[i];
+//    for (int i = 0; i < strlen(res); i++)
+//    {
+//        int len = strlen(input);
+//        if (res[i] == '+')
+//        {
+//            int pos = i;
+//            for (int j = i + 1; isNumber(res[j]) || res[j] == '.'; j++)
+//            {
+//                if (res[j + 1] == complexI)
+//                {
+//                    if (isNumber(res[pos - 1]))
+//                    {
+//                        int idx = 0;
+//                        for (int k = pos - 1; (isNumber(res[k]) || res[k] == '.' || res[k] == '!') && k >= 0; k--) idx = k;
+//                        for (int k = len; k > idx; k--) res[k] = res[k - 1];
+//                        res[idx] = '(';
+//                        res[j + 2] = ')';
+//                        res[pos + 1] = COMPLEX_PLUS;
+//                        i = j + 2;
+//                        break;
+//                    }
+//                    else
+//                    {
+//                        res[pos] = COMPLEX_PLUS;
+//                        res[j + 1] = ' ';
+//                        i = j + 1;
+//                        break;
+//                    }
+//                }
+//            }
+//        }
+//        else if (res[i] == '-')
+//        {
+//            int pos = i;
+//            for (int j = i + 1; isNumber(res[j]) || res[j] == '.'; j++)
+//            {
+//                if (res[j + 1] == complexI)
+//                {
+//                    res[pos] = COMPLEX_PLUS;
+//                    for (int k = len; res[k] != '$'; k--)
+//                    {
+//                        res[k] = res[k - 1];
+//                    }
+//                    res[pos + 1] = '!';
+//                    if (pos > 0 && isNumber(res[pos - 1]))
+//                    {
+//                        int idx = 0;
+//                        for (int k = pos - 1; (isNumber(res[k]) || res[k] == '.' || res[k] == '!') && k >= 0; k--) idx = k;
+//                        for (int k = len + 1; k > idx; k--) res[k] = res[k - 1];
+//                        res[idx] = '(';
+//                        res[j + 3] = ')';
+//                        i = j + 4;
+//                        break;
+//                    }
+//                }
+//            }
+//        }
+//    }
+//    return res;
+//}
 
-char* findSimpleImag(char* input, char complexI)
-{
-    char res[SIZE] = { 0 };
-    strcpy(res, input);
-    bool flag = false;
-    for (int i = 0; i < strlen(res); i++)
-    {
-        if (res[i] == '$' && (i == 0 || !isNumber(res[i - 1])))
-        {
-            for (int j = i + 1; j <= strlen(res); j++)
-            {
-                res[j] = res[j - 1];
-            }
-            res[i] = '0';
-            i++;
-        }
-    }
-    return res;
-}
+//char* findSimpleImag(char* input, char complexI)
+//{
+//    char res[SIZE] = { 0 };
+//    strcpy(res, input);
+//    bool flag = false;
+//    for (int i = 0; i < strlen(res); i++)
+//    {
+//        if (res[i] == '$' && (i == 0 || !isNumber(res[i - 1])))
+//        {
+//            for (int j = i + 1; j <= strlen(res); j++)
+//            {
+//                res[j] = res[j - 1];
+//            }
+//            res[i] = '0';
+//            i++;
+//        }
+//    }
+//    return res;
+//}
 
 char* makePostfixForm(char* inputStr, char* output)
 {
@@ -385,23 +385,19 @@ _Dcomplex divC(_Dcomplex x, _Dcomplex y)
     };
 }
 
-_Dcomplex strToComplex(char str[])
+_Dcomplex strToComplex(char str[], bool f)
 {
-    char imag[10] = { 0 };
-    char real[10] = { 0 };
-    int c = 0;
-    int i;
-    for (i = 0; str[i] != '$' && i < strlen(str); i++)
+    double x, y;
+    if (f)
     {
-        real[c++] = str[i];
+        x = 0;
+        y = atof(str);
     }
-    c = 0;
-    for (int j = i + 1; j < strlen(str); j++)
+    else
     {
-        imag[c++] = str[j];
+        x = atof(str);
+        y = 0;
     }
-    double x = atof(real);
-    double y = atof(imag);
     _Dcomplex result = { x, y };
     return result;
 }
@@ -413,7 +409,7 @@ _Dcomplex calculatePolish(char inputStr[])
     for (int i = 0; i < strlen(inputStr); i++)
     {
         char c = inputStr[i];
-        _Dcomplex x;
+        //_Dcomplex x;
         char number[128] = { 0 };
         switch (c)
         {
@@ -486,17 +482,20 @@ _Dcomplex calculatePolish(char inputStr[])
             stack[sp - 1] = (_Dcomplex){ carg(stack[sp - 1]), 0 };
             break;
         default:
-            for (int j = i; isNumber(inputStr[j]) || (inputStr[j] == '.' && isNumber(inputStr[j - 1]) ||
-                (inputStr[j] == '!' && isNumber(inputStr[j + 1])) ||
-                (inputStr[j] == '$')); j++)
+            bool flag = false;
+            for (int j = i; isNumber(inputStr[j]) || (inputStr[j] == '.' && isNumber(inputStr[j - 1])) ||
+                (inputStr[j] == '!' && isNumber(inputStr[j + 1])) || inputStr[j] == 'j'; j++)
             {
-                if (inputStr[j] == '!')
+                if (inputStr[j]=='j') 
+                    flag = true;
+                else if (inputStr[j] == '!')
                     number[j - i] = '-';
                 else
                     number[j - i] = inputStr[j];
             }
             i += strlen(number);
-            x = strToComplex(number);
+            _Dcomplex x;
+            x = strToComplex(number, flag);
             stack[sp] = x;
             sp++;
         }
@@ -575,10 +574,10 @@ char* makeSuitableForm(char* expression)
     strcpy(expression, replaceWord(expression, "E", "2.71828"));
     strcpy(expression, replaceWord(expression, "+j", "+1j"));
     strcpy(expression, replaceWord(expression, "-j", "-1j"));
-    strcpy(expression, replaceWord(expression, "(j", "(+1j"));
+    strcpy(expression, replaceWord(expression, "(j", "(1j"));
     strcpy(expression, findUnaryMinus(expression, expression));
     strcpy(expression, deleteSpaces(expression, expression));
-    strcpy(expression, replaceComplexPlus(expression, 'j'));
+    //strcpy(expression, replaceComplexPlus(expression, 'j'));
     strcpy(expression, replaceWord(expression, ")$", ")+0$"));
     strcpy(expression, replaceWord(expression, "sin", "с"));
     strcpy(expression, replaceWord(expression, "cos", "к"));
@@ -617,7 +616,7 @@ _Dcomplex calculateExpression(char* expression)
     strcpy(temp2, replaceFuncToBrackets(temp2, "ф", "(", ")f"));
     strcpy(temp2, replaceFuncToBrackets(temp2, "х", "(", ")m"));
     makePostfixForm(temp2, result);
-    //printf("DEBUG: %s\n", result);
+    printf("DEBUG: %s\n", result);
     return calculatePolish(result);
 }
 
@@ -698,7 +697,7 @@ signed main()
     Expression[strlen(Expression) - 1] = 0;
     Variable VariableData[STRING_SIZE] = { 0 };
     strcpy(Expression, makeSuitableForm(Expression));
-    strcpy(Expression, replaceComplexPlus(Expression, 'j'));
+    //strcpy(Expression, replaceComplexPlus(Expression, 'j'));
     strcpy(Expression, deleteSpaces(Expression, Expression));
     int NumberOfVariables = countVariables(Expression);
     /*for (int i = 0; i < NumberOfVariables; i++)
@@ -736,7 +735,7 @@ signed main()
             strcpy(Expression, replaceWord(Expression, VariableData[i].Name, VariableData[i].Value));
             strcpy(Expression, deleteSpaces(Expression, Expression));
             strcpy(Expression, makeSuitableForm(Expression));
-            strcpy(Expression, replaceComplexPlus(Expression, 'j'));
+            //strcpy(Expression, replaceComplexPlus(Expression, 'j'));
             strcpy(Expression, deleteSpaces(Expression, Expression));
         }
     }
