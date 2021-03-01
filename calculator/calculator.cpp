@@ -17,9 +17,9 @@
 
 typedef struct _complex _complex;
 
-const char REPLACERO[2] = {1, 0};
-const char REPLACERC[2] = {2, 0};
-const char MASKREPLACE[3] = {1, '(', 0};
+const char REPLACERO[2] = { 1, 0 };
+const char REPLACERC[2] = { 2, 0 };
+const char MASKREPLACE[3] = { 1, '(', 0 };
 
 const long double eps = 1e-4;
 
@@ -33,25 +33,25 @@ int getOperatorPriority(const char c)
 {
     switch (c)
     {
-        case '^':
-        case '!':
-            return 4;
-        case '*':
-        case '/':
-            return 3;
-        case '+':
-        case '-':
-            return 2;
-        case '=':
-            return 1;
+    case '^':
+    case '!':
+        return 4;
+    case '*':
+    case '/':
+        return 3;
+    case '+':
+    case '-':
+        return 2;
+    case '=':
+        return 1;
     }
     return 0;
 }
 
-char *replaceWord(const char *s, const char *oldW,
-                  const char *newW)
+char* replaceWord(const char* s, const char* oldW,
+    const char* newW)
 {
-    char *result;
+    char* result;
     int i, cnt = 0;
     int newWlen = strlen(newW);
     int oldWlen = strlen(oldW);
@@ -70,7 +70,7 @@ char *replaceWord(const char *s, const char *oldW,
     }
 
     // Making new string of enough length
-    result = (char *) malloc(i + cnt * (newWlen - oldWlen) + 1);
+    result = (char*)malloc(i + cnt * (newWlen - oldWlen) + 1);
 
     i = 0;
     while (*s)
@@ -92,12 +92,12 @@ char *replaceWord(const char *s, const char *oldW,
 
 bool isOperator(char curChar)
 {
-char Operators[NumberOfOperators] = { '+', '-', '*', '/', '^' };
-for (int i = 0; i < NumberOfOperators; i++)
-{
-    if (curChar == Operators[i]) return true;
-}
-return false;
+    char Operators[NumberOfOperators] = { '+', '-', '*', '/', '^' };
+    for (int i = 0; i < NumberOfOperators; i++)
+    {
+        if (curChar == Operators[i]) return true;
+    }
+    return false;
 }
 
 bool isLetter(char curChar)
@@ -253,11 +253,11 @@ char* findSimpleImag(char* input, char complexI)
     return res;
 }
 
-char *makePostfixForm(char *inputStr, char *output)
+char* makePostfixForm(char* inputStr, char* output)
 {
     bool flag = false;
-    char *outputStr = (char *) calloc(SIZE, SIZE);
-    char *operatorStack = (char *) calloc(SIZE, SIZE);
+    char* outputStr = (char*)calloc(SIZE, SIZE);
+    char* operatorStack = (char*)calloc(SIZE, SIZE);
     int StackPointer = 0, StringPointer = 0;
     for (int i = 0; i < strlen(inputStr); i++)
     {
@@ -274,7 +274,7 @@ char *makePostfixForm(char *inputStr, char *output)
                 flag = true;
             }
         }
-        else if (cur==',')
+        else if (cur == ',')
         {
             outputStr[StringPointer] = ' ';
             StringPointer++;
@@ -373,13 +373,15 @@ _Dcomplex sub(_Dcomplex* x, _Dcomplex* y)
 
 _Dcomplex mult(_Dcomplex* x, _Dcomplex* y)
 {
-    return (_Dcomplex) { creal(*x) * creal(*y) - cimag(*x) * cimag(*y), cimag(*x) * creal(*y) + creal(*x) * cimag(*y) };
+    return (_Dcomplex) { creal(*x)* creal(*y) - cimag(*x) * cimag(*y), cimag(*x)* creal(*y) + creal(*x) * cimag(*y) };
 }
 
 _Dcomplex divC(_Dcomplex x, _Dcomplex y)
 {
-    return (_Dcomplex) { ((creal(x) * creal(y) + cimag(x) * cimag(y)) / (creal(y)*creal(y) + cimag(y) * cimag(y))),
-        (creal(y)*cimag(x) - creal(x) * cimag(y)) / (creal(y) * creal(y) + cimag(y) * cimag(y))};
+    return (_Dcomplex) {
+        ((creal(x) * creal(y) + cimag(x) * cimag(y)) / (creal(y) * creal(y) + cimag(y) * cimag(y))),
+            (creal(y) * cimag(x) - creal(x) * cimag(y)) / (creal(y) * creal(y) + cimag(y) * cimag(y))
+    };
 }
 
 _Dcomplex strToComplex(char str[])
@@ -405,106 +407,106 @@ _Dcomplex strToComplex(char str[])
 
 _Dcomplex calculatePolish(char inputStr[])
 {
-    _Dcomplex *stack = (_Dcomplex *) malloc(SIZE);
+    _Dcomplex* stack = (_Dcomplex*)malloc(SIZE);
     int sp = 0;
     for (int i = 0; i < strlen(inputStr); i++)
     {
         char c = inputStr[i];
         _Dcomplex x;
-        char number[128] = {0};
+        char number[128] = { 0 };
         switch (c)
         {
-            case ' ':
-            case '\n':
-                break;
-            case '+':
-                stack[sp - 2] = add(&stack[sp - 2], &stack[sp - 1]);
-                sp--;
-                break;
-            case '-':
-                stack[sp - 2] = sub(&stack[sp - 2], &stack[sp - 1]);
-                sp--;
-                break;
-            case '*':
-                stack[sp - 2] = mult(&stack[sp - 1], &stack[sp - 2]);
-                sp--;
-                break;
-            case '/':
-                /*if (stack[sp - 1] == 0)
-                {
-                    printf("ERROR");
-                    exit(0);
-                }*/
-                stack[sp - 2] = divC(stack[sp - 2], stack[sp - 1]);
-                sp--;
-                break;
-            case 'p':
-            case '^':
-                stack[sp - 2] = cpow(stack[sp - 2], stack[sp - 1]);
-                sp--;
-                break;
-            case 's':
-                stack[sp - 1] = csin(stack[sp - 1]);
-                break;
-            case 'c':
-                stack[sp - 1] = ccos(stack[sp - 1]);
-                break;
-            case 'n':
-                stack[sp - 1] = clog(stack[sp - 1]);
-                break;
-            case 'g':
-                stack[sp - 2] = divC(clog((_Dcomplex) { 10, 0 }), clog(stack[sp - 2]));
-                sp--;
-                break;
-            case 'm':
-            case 'a':
-                stack[sp - 1] = (_Dcomplex){ cabs(stack[sp - 1]), 0 };
-                break;
-            case 't':
-                stack[sp - 1] = ctan(stack[sp - 1]);
-                break;
-            case 'q':
-                stack[sp - 1] = csqrt(stack[sp - 1]);
-                break;
-            case 'e':
-                stack[sp - 1] = cexp(stack[sp - 1]);
-                break;
-            case 'l':
-                stack[sp-2] = divC(clog(stack[sp-1]),clog(stack[sp-2]));
-                sp--;
-                break;
-            case 'r':
-                stack[sp - 1] = (_Dcomplex){ creal(stack[sp - 1]), 0 };
-                break;
-            case 'i':
-                stack[sp - 1] = (_Dcomplex){ cimag(stack[sp - 1]), 0 };
-                break;
-            case 'f':
-                stack[sp - 1] = (_Dcomplex){ carg(stack[sp - 1]), 0 };
-                break;
-            default:
-                for (int j = i; isNumber(inputStr[j]) || (inputStr[j] == '.' && isNumber(inputStr[j - 1]) ||
-                                                          (inputStr[j] == '!' && isNumber(inputStr[j + 1])) ||
-                                                          (inputStr[j] == '$')); j++)
-                {
-                    if (inputStr[j] == '!')
-                        number[j - i] = '-';
-                    else
-                        number[j - i] = inputStr[j];
-                }
-                i += strlen(number);
-                x = strToComplex(number);
-                stack[sp] = x;
-                sp++;
+        case ' ':
+        case '\n':
+            break;
+        case '+':
+            stack[sp - 2] = add(&stack[sp - 2], &stack[sp - 1]);
+            sp--;
+            break;
+        case '-':
+            stack[sp - 2] = sub(&stack[sp - 2], &stack[sp - 1]);
+            sp--;
+            break;
+        case '*':
+            stack[sp - 2] = mult(&stack[sp - 1], &stack[sp - 2]);
+            sp--;
+            break;
+        case '/':
+            /*if (stack[sp - 1] == 0)
+            {
+                printf("ERROR");
+                exit(0);
+            }*/
+            stack[sp - 2] = divC(stack[sp - 2], stack[sp - 1]);
+            sp--;
+            break;
+        case 'p':
+        case '^':
+            stack[sp - 2] = cpow(stack[sp - 2], stack[sp - 1]);
+            sp--;
+            break;
+        case 's':
+            stack[sp - 1] = csin(stack[sp - 1]);
+            break;
+        case 'c':
+            stack[sp - 1] = ccos(stack[sp - 1]);
+            break;
+        case 'n':
+            stack[sp - 1] = clog(stack[sp - 1]);
+            break;
+        case 'g':
+            stack[sp - 2] = divC(clog((_Dcomplex) { 10, 0 }), clog(stack[sp - 2]));
+            sp--;
+            break;
+        case 'm':
+        case 'a':
+            stack[sp - 1] = (_Dcomplex){ cabs(stack[sp - 1]), 0 };
+            break;
+        case 't':
+            stack[sp - 1] = ctan(stack[sp - 1]);
+            break;
+        case 'q':
+            stack[sp - 1] = csqrt(stack[sp - 1]);
+            break;
+        case 'e':
+            stack[sp - 1] = cexp(stack[sp - 1]);
+            break;
+        case 'l':
+            stack[sp - 2] = divC(clog(stack[sp - 1]), clog(stack[sp - 2]));
+            sp--;
+            break;
+        case 'r':
+            stack[sp - 1] = (_Dcomplex){ creal(stack[sp - 1]), 0 };
+            break;
+        case 'i':
+            stack[sp - 1] = (_Dcomplex){ cimag(stack[sp - 1]), 0 };
+            break;
+        case 'f':
+            stack[sp - 1] = (_Dcomplex){ carg(stack[sp - 1]), 0 };
+            break;
+        default:
+            for (int j = i; isNumber(inputStr[j]) || (inputStr[j] == '.' && isNumber(inputStr[j - 1]) ||
+                (inputStr[j] == '!' && isNumber(inputStr[j + 1])) ||
+                (inputStr[j] == '$')); j++)
+            {
+                if (inputStr[j] == '!')
+                    number[j - i] = '-';
+                else
+                    number[j - i] = inputStr[j];
+            }
+            i += strlen(number);
+            x = strToComplex(number);
+            stack[sp] = x;
+            sp++;
         }
     }
     _Dcomplex result = stack[sp - 1];
     return result;
 }
 
-char *deleteSpaces(char *inputStr, char *output)
+char* deleteSpaces(char* inputStr, char* output)
 {
-    char withoutSpaces[SIZE] = {0};
+    char withoutSpaces[SIZE] = { 0 };
     int pt = 0;
     for (int i = 0; i < strlen(inputStr); i++)
     {
@@ -519,10 +521,10 @@ char *deleteSpaces(char *inputStr, char *output)
 }
 
 
-int replaceBrackets(char *inputStr[], int posfrom)
+int replaceBrackets(char* inputStr[], int posfrom)
 {
-    char *arr = *inputStr;
-    char stack[SIZE] = {0};
+    char* arr = *inputStr;
+    char stack[SIZE] = { 0 };
     int sp = 0;
     for (int i = posfrom; i < strlen(arr); i++)
     {
@@ -545,10 +547,10 @@ int replaceBrackets(char *inputStr[], int posfrom)
     }
 }
 
-char *replaceFuncToBrackets(char inputStr[], char name[], char toBeginning[], char toEnd[])
+char* replaceFuncToBrackets(char inputStr[], char name[], char toBeginning[], char toEnd[])
 {
-    char *result = (char *) calloc(SIZE, SIZE);
-    char stack[SIZE] = {0};
+    char* result = (char*)calloc(SIZE, SIZE);
+    char stack[SIZE] = { 0 };
     int sp = 0;
     bool found = false;
     strcpy(result, replaceWord(inputStr, name, REPLACERO));
@@ -562,11 +564,11 @@ char *replaceFuncToBrackets(char inputStr[], char name[], char toBeginning[], ch
 
     strcpy(result, replaceWord(result, MASKREPLACE, toBeginning));
     strcpy(result, replaceWord(result, REPLACERC, toEnd));
- //   printf("%s\n", result);
+    //   printf("%s\n", result);
     return result;
 }
 
-char *makeSuitableForm(char *expression)
+char* makeSuitableForm(char* expression)
 {
     strcpy(expression, replaceWord(expression, "PI", "3.1415926"));
     strcpy(expression, replaceWord(expression, "E", "2.71828"));
@@ -593,9 +595,9 @@ char *makeSuitableForm(char *expression)
     return expression;
 }
 
-_Dcomplex calculateExpression(char *expression)
+_Dcomplex calculateExpression(char* expression)
 {
-    char result[SIZE] = {0}, temp1[SIZE] = {0}, temp2[SIZE] = {0};
+    char result[SIZE] = { 0 }, temp1[SIZE] = { 0 }, temp2[SIZE] = { 0 };
     strcpy(temp1, deleteSpaces(expression, temp1));
     strcpy(temp2, findUnaryMinus(temp1, temp2));
     strcpy(temp2, replaceFuncToBrackets(temp2, "с", "(", ")s"));
@@ -691,20 +693,33 @@ signed main()
 {
     char Expression[SIZE];
     fgets(Expression, sizeof(Expression), stdin);
-    Variable VariableData[STRING_SIZE] = {0};
+    Variable VariableData[STRING_SIZE] = { 0 };
     strcpy(Expression, makeSuitableForm(Expression));
     strcpy(Expression, replaceComplexPlus(Expression, 'j'));
     strcpy(Expression, deleteSpaces(Expression, Expression));
     int NumberOfVariables = countVariables(Expression);
-    for (int i = 0; i < NumberOfVariables; i++)
+    /*for (int i = 0; i < NumberOfVariables; i++)
     {
-            char str[STRING_SIZE] = {0};
-            fgets(str, sizeof(str), stdin);
-            char *rest = strchr(str, (int) '=');
-            rest[0] = ' ';
-            rest[strlen(rest) - 1] = 0;
-            sscanf(str, "%s", VariableData[i].Name);
-            strcpy(VariableData[i].Value, rest);
+        char str[STRING_SIZE] = { 0 };
+        fgets(str, sizeof(str), stdin);
+        char* rest = strchr(str, (int)'=');
+        rest[0] = ' ';
+        rest[strlen(rest) - 1] = 0;
+        sscanf(str, "%s", VariableData[i].Name);
+        strcpy(VariableData[i].Value, rest);
+        NumberOfVariables += countVariables(rest);
+    }*/
+    int i = 0;
+    char str[STRING_SIZE] = { 0 };
+    while (fgets(str, sizeof(str), stdin) != NULL)
+    {
+        char* rest = strchr(str, (int)'=');
+        if (rest == NULL) break;
+        rest[0] = ' ';
+        rest[strlen(rest) - 1] = 0;
+        sscanf(str, "%s", VariableData[i].Name);
+        strcpy(VariableData[i].Value, rest);
+        i++;
     }
     while (countVariables(Expression))
     {
@@ -728,6 +743,6 @@ signed main()
     {
         printf("%lf", creal(Result));
     }
-//    check();
+    //    check();
     return 0;
 }
