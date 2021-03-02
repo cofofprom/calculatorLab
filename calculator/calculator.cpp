@@ -653,7 +653,7 @@ signed main()
     char Expression[SIZE];
     fgets(Expression, sizeof(Expression), Input);
     //fgets(Expression, sizeof(Expression), stdin);
-    Expression[strlen(Expression) - 1] = 0;
+    if (Expression[strlen(Expression) - 1] == '\n') Expression[strlen(Expression) - 1] = 0;
     Variable VariableData[STRING_SIZE] = { 0 };
     strcpy(Expression, makeSuitableForm(Expression));
     strcpy(Expression, deleteSpaces(Expression, Expression));
