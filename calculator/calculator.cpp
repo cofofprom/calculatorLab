@@ -21,7 +21,7 @@ const char REPLACERO[2] = { 1, 0 };
 const char REPLACERC[2] = { 2, 0 };
 const char MASKREPLACE[3] = { 1, '(', 0 };
 
-const long double eps = 1e-6;
+const long double eps = 1e-5;
 
 typedef struct InputVariable
 {
@@ -120,7 +120,7 @@ int countVariables(char* expression)
     {
         bool f = false;
         char cur = expression[i];
-        if (isLetter(cur) && cur!='j')
+        if (isLetter(cur) && cur != 'j')
         {
             for (j = i; j < strlen(expression); j++)
             {
@@ -399,7 +399,7 @@ _Dcomplex calculatePolish(char inputStr[])
             for (int j = i; isNumber(inputStr[j]) || (inputStr[j] == '.' && isNumber(inputStr[j - 1])) ||
                 (inputStr[j] == '!' && isNumber(inputStr[j + 1])) || inputStr[j] == 'j'; j++)
             {
-                if (inputStr[j]=='j') 
+                if (inputStr[j] == 'j')
                     flag = true;
                 else if (inputStr[j] == '!')
                     number[j - i] = '-';
@@ -534,24 +534,24 @@ _Dcomplex calculateExpression(char* expression)
 
 void check()
 {
-    FILE *Tests, *Answers;
+    FILE* Tests, * Answers;
     bool flag = false;
     Tests = fopen("Tests.txt", "r");
     Answers = fopen("TestAnswers.txt", "r");
-    char temp[STRING_SIZE] = {0};
+    char temp[STRING_SIZE] = { 0 };
     fgets(temp, STRING_SIZE, Tests);
     int NumberOfTests;
     sscanf(temp, "%d", &NumberOfTests);
     for (int test_case = 1; test_case <= NumberOfTests; test_case++)
     {
-        char result[SIZE] = {0}, temp1[SIZE] = {0}, temp2[SIZE] = {0}, Expression[SIZE] = {0};;
+        char result[SIZE] = { 0 }, temp1[SIZE] = { 0 }, temp2[SIZE] = { 0 }, Expression[SIZE] = { 0 };;
         fgets(Expression, sizeof(Expression), Tests);
         strcpy(Expression, makeSuitableForm(Expression));
         strcpy(Expression, deleteSpaces(Expression, temp1));
         strcpy(Expression, findUnaryMinus(Expression, temp2));
         strcpy(Expression, makeSuitableForm(Expression));
         strcpy(Expression, deleteSpaces(Expression, temp1));
-        Variable VariableData[STRING_SIZE] = {0};
+        Variable VariableData[STRING_SIZE] = { 0 };
         int alli = 0;
         char str[STRING_SIZE] = { 0 };
         while (fgets(str, sizeof(str), Tests) != NULL)
@@ -595,7 +595,7 @@ void check()
         strcpy(Expression, replaceFuncToBrackets(Expression, "ф", "(", ")f"));
         makePostfixForm(Expression, result);
         _Dcomplex AnswerForCurrentTest;
-        char StringWithAnswer[STRING_SIZE] = {0};
+        char StringWithAnswer[STRING_SIZE] = { 0 };
         fgets(StringWithAnswer, sizeof(StringWithAnswer), Answers);
         bool isComplex = false;
         for (int j = 1; j < strlen(StringWithAnswer); j++)
@@ -617,10 +617,18 @@ void check()
                 }
                 else if (StringWithAnswer[j] == '-' || StringWithAnswer[j] == '+')
                 {
-                    if (StringWithAnswer[j] == '+') j++;
+                    if (StringWithAnswer[j] == '-')
+                    {
+                        im[im_pt] = StringWithAnswer[j];
+                        im_pt++;
+                    }
                     flag = true;
                 }
-                else if (StringWithAnswer[j] == 'j') break;
+                else if (StringWithAnswer[j] == 'j')
+                {
+                    im[im_pt] = StringWithAnswer[j];
+                    break;
+                }
                 else
                 {
                     im[im_pt] = StringWithAnswer[j];
@@ -638,12 +646,12 @@ void check()
         }
         if (fabs(creal(AnswerForCurrentTest) - creal(calculatePolish(result))) > eps || fabs(cimag(AnswerForCurrentTest) - cimag(calculatePolish(result))) > eps)
         {
-            if (cimag(calculatePolish(result))<0)
-                printf("Wrong answer on test_case #%d: (%lf%lf) instead of (%lf%lf)\n", test_case, creal(calculatePolish(result)), cimag(calculatePolish(result)), 
-                   creal(AnswerForCurrentTest), cimag(AnswerForCurrentTest));
+            if (cimag(calculatePolish(result)) < 0)
+                printf("Wrong answer on test_case #%d: (%lf%lfj) instead of (%lf+%lfj)\n", test_case, creal(calculatePolish(result)), cimag(calculatePolish(result)),
+                    creal(AnswerForCurrentTest), cimag(AnswerForCurrentTest));
             else
-                    printf("Wrong answer on test_case #%d: (%lf+%lf) instead of (%lf+%lf)\n", test_case, creal(calculatePolish(result)), cimag(calculatePolish(result)),
-                        creal(AnswerForCurrentTest), cimag(AnswerForCurrentTest));
+                printf("Wrong answer on test_case #%d: (%lf+%lfj) instead of (%lf+%lfj)\n", test_case, creal(calculatePolish(result)), cimag(calculatePolish(result)),
+                    creal(AnswerForCurrentTest), cimag(AnswerForCurrentTest));
             flag = true;
         }
     }
