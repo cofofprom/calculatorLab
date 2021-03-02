@@ -21,7 +21,7 @@ const char REPLACERO[2] = { 1, 0 };
 const char REPLACERC[2] = { 2, 0 };
 const char MASKREPLACE[3] = { 1, '(', 0 };
 
-const long double eps = 1e-5;
+const double eps = 1e-5;
 
 typedef struct InputVariable
 {
@@ -528,7 +528,7 @@ _Dcomplex calculateExpression(char* expression)
     strcpy(temp2, replaceFuncToBrackets(temp2, "ф", "(", ")f"));
     strcpy(temp2, replaceFuncToBrackets(temp2, "х", "(", ")m"));
     makePostfixForm(temp2, result);
-    //printf("DEBUG: %s\n", result);
+    printf("DEBUG: %s\n", result);
     return calculatePolish(result);
 }
 
@@ -649,8 +649,10 @@ void check()
 
 signed main()
 {
+    FILE* Input = fopen("Expression.txt", "r");
     char Expression[SIZE];
-    fgets(Expression, sizeof(Expression), stdin);
+    fgets(Expression, sizeof(Expression), Input);
+    //fgets(Expression, sizeof(Expression), stdin);
     Expression[strlen(Expression) - 1] = 0;
     Variable VariableData[STRING_SIZE] = { 0 };
     strcpy(Expression, makeSuitableForm(Expression));
@@ -658,7 +660,8 @@ signed main()
     int NumberOfVariables = countVariables(Expression);
     int alli = 0;
     char str[STRING_SIZE] = { 0 };
-    while (fgets(str, sizeof(str), stdin) != NULL)
+    while (fgets(str, sizeof(str), Input) != NULL)
+    //while (fgets(str, sizeof(str), stdin) != NULL)
     {
         char* rest = strchr(str, (int)'=');
         if (rest == NULL) break;
