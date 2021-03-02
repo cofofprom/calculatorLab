@@ -649,7 +649,7 @@ void check()
 
 signed main()
 {
-    /*char Expression[SIZE];
+    char Expression[SIZE];
     fgets(Expression, sizeof(Expression), stdin);
     Expression[strlen(Expression) - 1] = 0;
     Variable VariableData[STRING_SIZE] = { 0 };
@@ -707,7 +707,7 @@ signed main()
         {
             printf("%lf+%lfj", creal(Result), cimag(Result));
         }
-    }*/
-    check();
+    }
+    //check();
     return 0;
 }
