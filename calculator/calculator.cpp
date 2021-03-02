@@ -528,7 +528,7 @@ _Dcomplex calculateExpression(char* expression)
     strcpy(temp2, replaceFuncToBrackets(temp2, "ф", "(", ")f"));
     strcpy(temp2, replaceFuncToBrackets(temp2, "х", "(", ")m"));
     makePostfixForm(temp2, result);
-    printf("DEBUG: %s\n", result);
+    //printf("DEBUG: %s\n", result);
     return calculatePolish(result);
 }
 
@@ -582,18 +582,7 @@ void check()
             }
         }
         strcpy(Expression, makeSuitableForm(Expression));
-        strcpy(Expression, replaceFuncToBrackets(Expression, "с", "(", ")s"));
-        strcpy(Expression, replaceFuncToBrackets(Expression, "к", "(", ")c"));
-        strcpy(Expression, replaceFuncToBrackets(Expression, "т", "(", ")t"));
-        strcpy(Expression, replaceFuncToBrackets(Expression, "л", "(", ")l"));
-        strcpy(Expression, replaceFuncToBrackets(Expression, "н", "(", ")n"));
-        strcpy(Expression, replaceFuncToBrackets(Expression, "г", "(", ")g"));
-        strcpy(Expression, replaceFuncToBrackets(Expression, "р", "(", ")q"));
-        strcpy(Expression, replaceFuncToBrackets(Expression, "б", "(", ")a"));
-        strcpy(Expression, replaceFuncToBrackets(Expression, "е", "(", ")e"));
-        strcpy(Expression, replaceFuncToBrackets(Expression, "п", "(", ")p"));
-        strcpy(Expression, replaceFuncToBrackets(Expression, "ф", "(", ")f"));
-        makePostfixForm(Expression, result);
+        _Dcomplex Result = calculateExpression(Expression);
         _Dcomplex AnswerForCurrentTest;
         char StringWithAnswer[STRING_SIZE] = { 0 };
         fgets(StringWithAnswer, sizeof(StringWithAnswer), Answers);
@@ -644,13 +633,13 @@ void check()
             StringWithAnswer[strlen(StringWithAnswer) - 1] = '\0';
             AnswerForCurrentTest = strToComplex(StringWithAnswer, isComplex);
         }
-        if (fabs(creal(AnswerForCurrentTest) - creal(calculatePolish(result))) > eps || fabs(cimag(AnswerForCurrentTest) - cimag(calculatePolish(result))) > eps)
+        if (fabs(creal(AnswerForCurrentTest) - creal(Result)) > eps || fabs(cimag(AnswerForCurrentTest) - cimag(Result)) > eps)
         {
-            if (cimag(calculatePolish(result)) < 0)
-                printf("Wrong answer on test_case #%d: (%lf%lfj) instead of (%lf+%lfj)\n", test_case, creal(calculatePolish(result)), cimag(calculatePolish(result)),
+            if (cimag(Result) < 0)
+                printf("Wrong answer on test_case #%d: (%lf%lfj) instead of (%lf+%lfj)\n", test_case, creal(Result), cimag(Result),
                     creal(AnswerForCurrentTest), cimag(AnswerForCurrentTest));
             else
-                printf("Wrong answer on test_case #%d: (%lf+%lfj) instead of (%lf+%lfj)\n", test_case, creal(calculatePolish(result)), cimag(calculatePolish(result)),
+                printf("Wrong answer on test_case #%d: (%lf+%lfj) instead of (%lf+%lfj)\n", test_case, creal(Result), cimag(Result),
                     creal(AnswerForCurrentTest), cimag(AnswerForCurrentTest));
             flag = true;
         }
