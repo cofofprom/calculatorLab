@@ -343,11 +343,11 @@ _Dcomplex calculatePolish(char inputStr[])
             sp--;
             break;
         case '/':
-            /*if (stack[sp - 1] == 0)
+            if (creal(stack[sp - 1]) == 0 && cimag(stack[sp - 1]) == 0)
             {
-                printf("ERROR");
+                printf("ERROR division by zero");
                 exit(0);
-            }*/
+            }
             stack[sp - 2] = divC(stack[sp - 2], stack[sp - 1]);
             sp--;
             break;
@@ -528,7 +528,7 @@ _Dcomplex calculateExpression(char* expression)
     strcpy(temp2, replaceFuncToBrackets(temp2, "ф", "(", ")f"));
     strcpy(temp2, replaceFuncToBrackets(temp2, "х", "(", ")m"));
     makePostfixForm(temp2, result);
-    printf("DEBUG: %s\n", result);
+    //printf("DEBUG: %s\n", result);
     return calculatePolish(result);
 }
 
