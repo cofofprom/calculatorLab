@@ -1,4 +1,3 @@
-//ОПРЕДЕЛЕНИЯ И БИБЛИОТЕКИ 
 #define _CRT_SECURE_NO_WARNINGS
 
 #include <stdio.h>
@@ -28,7 +27,7 @@ typedef struct InputVariable
     char Name[STRING_SIZE], Value[STRING_SIZE];
 } Variable;
 
-//ФУНКЦИИ
+//Получение приоритета операции
 int getOperatorPriority(const char c)
 {
     switch (c)
@@ -48,6 +47,7 @@ int getOperatorPriority(const char c)
     return 0;
 }
 
+//Замена строк в исходном выражении
 char* replaceWord(const char* s, const char* oldW,
     const char* newW)
 {
@@ -56,26 +56,21 @@ char* replaceWord(const char* s, const char* oldW,
     int newWlen = strlen(newW);
     int oldWlen = strlen(oldW);
 
-    // Counting the number of times old word
-    // occur in the string
     for (i = 0; s[i] != '\0'; i++)
     {
         if (strstr(&s[i], oldW) == &s[i])
         {
             cnt++;
 
-            // Jumping to index after the old word.
             i += oldWlen - 1;
         }
     }
 
-    // Making new string of enough length
     result = (char*)malloc(i + cnt * (newWlen - oldWlen) + 1);
 
     i = 0;
     while (*s)
     {
-        // compare the substring with the result
         if (strstr(s, oldW) == s)
         {
             strcpy(&result[i], newW);
@@ -112,6 +107,7 @@ bool isNumber(char curChar)
     else return false;
 }
 
+//Подсчет переменных в исходном выражении
 int countVariables(char* expression)
 {
     int j, cnt = 0, ptv = 0, ptn = 0;
@@ -168,6 +164,7 @@ char* findUnaryMinus(char* inputStr, char* output)
     return output;
 }
 
+//Построение обратной польской записи
 char* makePostfixForm(char* inputStr, char* output)
 {
     bool flag = false;
